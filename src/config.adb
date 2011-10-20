@@ -4,7 +4,6 @@ with DOM.Core.Nodes; use DOM.Core.Nodes;
 with DOM.Core.Attrs; use DOM.Core.Attrs;
 with DOM.Readers;
 with Sax.Readers; use Sax.Readers;
-with Ada.Text_IO; use Ada.Text_IO;
 with Input_Sources.File; use Input_Sources.File;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
@@ -19,7 +18,8 @@ package body Config is
       XML_Doc : Document;
       All_Nodes : Node_List;
       Config_Node, One_Node  : Node;
-      File : File_Input;
+      File                   : File_Input;
+      Group_List : Node_Groups.List;
    begin
       Open (Filename => "/etc/lights-out.xml",
             Input => File);
@@ -54,11 +54,15 @@ package body Config is
                      New_Group.Number_To_Keep_Online := Integer'Value (Value (First_Child (Group_Node)));
                   elsif Name (Group_Node) = "nodename" then
                      New_Group.Host_Names.Append (To_Unbounded_String (Value (First_Child (Group_Node))));
+                  elsif Name (Group_Node) = "#text" or else
+                    Name (Group_Node) = "#comment" then
+                     null; -- ignore
                   else
                      raise Config_Error with "Found unexpected """
                        & Name (Group_Node) & """ in <nodegroup>";
                   end if;
                end loop;
+               Group_List.Append (New_Group);
             end;
          elsif Node_Name (One_Node) = "#text" or else
            Node_Name (One_Node) = "#comment" then
@@ -67,9 +71,8 @@ package body Config is
             raise Config_Error with "Found unexpected """
               & Node_Name (One_Node) & """ in <config> while reading config file";
          end if;
-         Put_Line (Node_Name (One_Node) & I'Img);
       end loop;
-      return Node_Groups.Lists.Empty_List;
+      return Group_List;
    end Read;
 
 end Config;

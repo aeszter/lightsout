@@ -13,5 +13,14 @@ package Node_Groups is
    package Lists is new Doubly_Linked_Lists (Element_Type => Group);
    subtype List is Lists.List;
    procedure Manage (What : Lists.Cursor);
+   procedure Check_Node (What       : Utils.String_Lists.Cursor;
+                         Idle_Count_Above_Threshold : in out Integer);
+   procedure Enable (Node : String);
+   procedure Disable (Node : String);
+   function Is_Disabled (Node : String) return Boolean;
+   procedure Poweroff (Node : String);
+   procedure Poweron (Node : String);
+   function Is_Online (Node : String) return Boolean;
+   function Is_Idle (Node : String) return Boolean;
 
 end Node_Groups;
