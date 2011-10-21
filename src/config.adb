@@ -49,10 +49,12 @@ package body Config is
                Group_Nodes := Child_Nodes (One_Node);
                for J in 0 .. Length (Group_Nodes) - 1 loop
                   Group_Node := Item (Group_Nodes, J);
-                  if Name (Group_Node) = "delay" then
-                     New_Group.Seconds_To_Keep_Online := Integer'Value (Value (First_Child (Group_Node)));
-                  elsif Name (Group_Node) = "residents" then
-                     New_Group.Number_To_Keep_Online := Integer'Value (Value (First_Child (Group_Node)));
+                  if Name (Group_Node) = "target" then
+                     New_Group.Online_Target := Integer'Value (Value (First_Child (Group_Node)));
+                  elsif Name (Group_Node) = "minimum" then
+                     New_Group.Min_Online := Integer'Value (Value (First_Child (Group_Node)));
+                  elsif Name (Group_Node) = "maximum" then
+                     New_Group.Max_Online := Integer'Value (Value (First_Child (Group_Node)));
                   elsif Name (Group_Node) = "nodename" then
                      New_Group.Host_Names.Append (To_Unbounded_String (Value (First_Child (Group_Node))));
                   elsif Name (Group_Node) = "#text" or else
@@ -63,6 +65,13 @@ package body Config is
                        & Name (Group_Node) & """ in <nodegroup>";
                   end if;
                end loop;
+               if New_Group.Min_Online > New_Group.Online_Target then
+                  raise Config_Error with "Minimum (" & New_Group.Min_Online'Img
+                    & " ) > Target (" & New_Group.Online_Target'Img & " )";
+               elsif New_Group.Max_Online < New_Group.Online_Target then
+                  raise Config_Error with "Maximum (" & New_Group.Max_Online'Img
+                    & " ) < Target (" & New_Group.Online_Target'Img & " )";
+               end if;
                if not New_Group.Host_Names.Is_Empty then
                   Group_List.Append (New_Group);
                else

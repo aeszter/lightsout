@@ -5,9 +5,10 @@ with Utils;
 package Node_Groups is
    type Group is
       record
-         Host_Names             : Utils.String_List;
-         Number_To_Keep_Online  : Natural := 1;
-         Seconds_To_Keep_Online : Natural := 3_600;
+         Host_Names    : Utils.String_List;
+         Min_Online    : Natural := 1;
+         Max_Online    : Natural := 5;
+         Online_Target : Natural := 4;
       end record;
 
    package Lists is new Doubly_Linked_Lists (Element_Type => Group);
