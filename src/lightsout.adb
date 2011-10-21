@@ -3,6 +3,7 @@ with Config;
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Exceptions; use Ada.Exceptions;
 with Ada.Command_Line; use Ada.Command_Line;
+with Utils; use Utils;
 
 
 procedure Lightsout is
@@ -11,6 +12,8 @@ procedure Lightsout is
 
    All_Nodes : Node_Groups.List;
 begin
+   Utils.Check_Debug_Flag;
+   Debug ("Debugging enabled");
    All_Nodes := Config.Read;
    All_Nodes.Iterate (Node_Groups.Manage'Access);
 exception

@@ -6,6 +6,7 @@ with DOM.Readers;
 with Sax.Readers; use Sax.Readers;
 with Input_Sources.File; use Input_Sources.File;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
+with Ada.Text_IO; use Ada.Text_IO;
 
 package body Config is
 
@@ -62,7 +63,11 @@ package body Config is
                        & Name (Group_Node) & """ in <nodegroup>";
                   end if;
                end loop;
-               Group_List.Append (New_Group);
+               if not New_Group.Host_Names.Is_Empty then
+                  Group_List.Append (New_Group);
+               else
+                  Put_Line (Standard_Error, "Warning: empty node group ignored");
+               end if;
             end;
          elsif Node_Name (One_Node) = "#text" or else
            Node_Name (One_Node) = "#comment" then
@@ -72,6 +77,7 @@ package body Config is
               & Node_Name (One_Node) & """ in <config> while reading config file";
          end if;
       end loop;
+
       return Group_List;
    end Read;
 
