@@ -13,18 +13,21 @@ package body Node_Groups is
 
    procedure Manage (What : Lists.Cursor) is
       The_Group  : constant Group := Lists.Element (What);
-      Idle_Counter : Integer := -The_Group.Number_To_Keep_Online;
+      Idle_Counter : Integer := 0;
       Index      : Utils.String_Lists.Cursor :=  The_Group.Host_Names.First;
       Nodes_To_Switch_On : Natural;
+      Nodes_To_Switch_Off : Natural;
    begin
       while Index /= No_Element loop
-         Check_Node (What                       => Index,
-                     Idle_Count_Above_Threshold => Idle_Counter);
+         Check_Node (What       => Index,
+                     Idle_Count => Idle_Counter);
          Next (Index);
       end loop;
 
-      if Idle_Counter < 0 then
-         Nodes_To_Switch_On := -Idle_Counter;
+      if Idle_Counter < The_Group.Min_Online then
+         Debug (Idle_Counter'Img & " Nodes idle when " & The_Group.Min_Online'Img
+                  & " is the minimum");
+         Nodes_To_Switch_On := The_Group.Online_Target - Idle_Counter;
          Index := The_Group.Host_Names.First;
          Switch_On :
          while Index /= No_Element loop
@@ -45,37 +48,52 @@ package body Node_Groups is
                Next (Index);
             end;
          end loop Switch_On;
+      elsif Idle_Counter > The_Group.Max_Online then
+         Debug (Idle_Counter'Img & " Nodes idle when " & The_Group.Max_Online'Img
+                  & " is the maximum");
+         Nodes_To_Switch_Off := Idle_Counter - The_Group.Online_Target;
+         Index := The_Group.Host_Names.First;
+         Switch_Off :
+         while Index /= No_Element loop
+            declare
+               The_Node : constant String := To_String (Utils.String_Lists.Element (Index));
+            begin
+               if Nodes_To_Switch_Off > 0 and then
+                 Is_Online (Node => The_Node) and then
+                 Is_Idle (Node => The_Node) then
+                  Disable (Node => The_Node);
+                  if not Is_Idle (Node => The_Node) then
+         -- the scheduler has been faster
+                     Enable (Node => The_Node);
+                     -- it is OK to enable The_Node without checking whether
+                     -- it has been disabled by an admin:
+                     -- if we are here, the node has been idle, but is no longer
+                     -- therefore, it can only have been disabled after we checked
+                     -- for Is_Idle. An admin is unlikely to have hit this short
+                     -- interval.
+                  else
+                     Poweroff (Node => The_Node);
+                     Nodes_To_Switch_Off := Nodes_To_Switch_Off - 1;
+                  end if;
+               elsif Nodes_To_Switch_Off = 0 then
+                  Debug (Message => "Not switching off nodes after " &
+                        The_Node & " because the threshold has been reached.");
+                  exit Switch_Off;
+               end if;
+               Next (Index);
+            end;
+         end loop Switch_Off;
       end if;
    end Manage;
 
    procedure Check_Node (What       : Utils.String_Lists.Cursor;
-                         Idle_Count_Above_Threshold : in out Integer) is
+                         Idle_Count : in out Integer) is
       The_Node : constant String := To_String (Element (What));
-      Was_Disabled : Boolean := Is_Disabled (Node => The_Node);
    begin
-      if not Is_Online (Node => The_Node) or else
-        not Is_Idle (Node => The_Node) then
-         Debug ("Not switching off " & The_Node & " because not online or not idle");
-         return;
+      if Is_Online (Node => The_Node) and then
+        Is_Idle (Node => The_Node) then
+         Idle_Count := Idle_Count + 1;
       end if;
-      -- check idle time against TTKO
-      Idle_Count_Above_Threshold := Idle_Count_Above_Threshold + 1;
-      if Idle_Count_Above_Threshold <= 0 then
-         Debug ("Not switching off " & The_Node
-                   & " because" & Integer'Image (-Idle_Count_Above_Threshold)
-                     & " less nodes are idle than required");
-         return; -- keep node online
-      end if;
-      Was_Disabled := Is_Disabled (Node => The_Node);
-      Disable (Node => The_Node);
-      if not Is_Idle (Node => The_Node) then
-         -- the scheduler has been faster
-         if not Was_Disabled then
-            Enable (Node => The_Node);
-         end if;
-         return;
-      end if;
-      Poweroff (Node => The_Node);
    end Check_Node;
 
    procedure Enable (Node : String) is

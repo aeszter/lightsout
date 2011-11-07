@@ -15,7 +15,7 @@ package Node_Groups is
    subtype List is Lists.List;
    procedure Manage (What : Lists.Cursor);
    procedure Check_Node (What       : Utils.String_Lists.Cursor;
-                         Idle_Count_Above_Threshold : in out Integer);
+                         Idle_Count : in out Integer);
    procedure Enable (Node : String);
    procedure Disable (Node : String);
    function Is_Disabled (Node : String) return Boolean;
