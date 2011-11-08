@@ -20,10 +20,6 @@ package Node_Groups is
    procedure Manage (What : Lists.Cursor);
    procedure Check_Node (What       : Utils.String_Lists.Cursor;
                          Idle_Count : in out Integer);
-   procedure Enable (Node : String);
-   procedure Disable (Node : String);
-   procedure Poweroff (Node : String);
-   procedure Poweron (Node : String);
    procedure Query_Node (Node : String; Disabled, Online, Idle : out Boolean);
    function Is_Online_And_Idle (Node : String) return Boolean;
    function Is_Idle (Node : String) return Boolean;

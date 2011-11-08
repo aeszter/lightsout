@@ -1,8 +1,8 @@
 with Ada.Strings.Fixed;
-with Ada.Text_IO; use Ada.Text_IO;
 with Utils; use Utils; use Utils.String_Lists;
 with Parser;
 with DOM.Core; with DOM.Core.Nodes; with DOM.Core.Attrs;
+with Actions; use Actions;
 
 package body Node_Groups is
 
@@ -103,31 +103,6 @@ package body Node_Groups is
          Idle_Count := Idle_Count + 1;
       end if;
    end Check_Node;
-
-   procedure Enable (Node : String) is
-   begin
-      Put_Line (File => Standard_Error,
-                Item => "Enabling " & Node);
-   end Enable;
-
-   procedure Disable (Node : String) is
-   begin
-      Put_Line (File => Standard_Error,
-                Item => "Disabling " & Node);
-   end Disable;
-
-   procedure Poweron (Node : String) is
-   begin
-      Put_Line (File => Standard_Error,
-                Item => "Switching on " & Node);
-
-   end Poweron;
-
-   procedure Poweroff (Node : String) is
-   begin
-      Put_Line (File => Standard_Error,
-                Item => "Switching off " & Node);
-   end Poweroff;
 
    procedure Query_Node (Node : String; Disabled, Online, Idle : out Boolean) is
       SGE_Out : Parser.Tree;
