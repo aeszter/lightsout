@@ -35,7 +35,7 @@ package body Node_Groups is
                The_Node : constant String := To_String (Utils.String_Lists.Element (Index));
             begin
                if Nodes_To_Switch_On > 0 and then
-                not Is_Online (Node => The_Node) then
+                 not Is_Online (Node => The_Node) then
                   Poweron (Node => The_Node);
                   Enable (Node => The_Node);
                   Nodes_To_Switch_On := Nodes_To_Switch_On - 1;
@@ -59,8 +59,7 @@ package body Node_Groups is
                The_Node : constant String := To_String (Utils.String_Lists.Element (Index));
             begin
                if Nodes_To_Switch_Off > 0 and then
-                 Is_Online (Node => The_Node) and then
-                 Is_Idle (Node => The_Node) then
+                 Is_Online_And_Idle (Node => The_Node) then
                   Disable (Node => The_Node);
                   if not Is_Idle (Node => The_Node) then
          -- the scheduler has been faster
@@ -90,8 +89,7 @@ package body Node_Groups is
                          Idle_Count : in out Integer) is
       The_Node : constant String := To_String (Element (What));
    begin
-      if Is_Online (Node => The_Node) and then
-        Is_Idle (Node => The_Node) then
+      if Is_Online_And_Idle (Node => The_Node) then
          Idle_Count := Idle_Count + 1;
       end if;
    end Check_Node;
@@ -121,48 +119,30 @@ package body Node_Groups is
                 Item => "Switching off " & Node);
    end Poweroff;
 
-   function Is_Disabled (Node : String) return Boolean is
+   procedure Query_Node (Node : String; Disabled, Online, Idle : out Boolean) is
       SGE_Out : Parser.Tree;
       Nodes   : DOM.Core.Node_List;
       State_Node : DOM.Core.Node;
+      Slots_Node : DOM.Core.Node;
+      Count : Natural;
    begin
       SGE_Out := Parser.Setup (Selector => "-f -q \*@" & Node);
       Nodes := Parser.Get_Elements_By_Tag_Name (SGE_Out, "state");
+      Disabled := False;
+      Online := True;
       for I in 0 .. DOM.Core.Nodes.Length (Nodes) - 1 loop
          State_Node := DOM.Core.Nodes.Item (Nodes, I);
          if Ada.Strings.Fixed.Count (Source => DOM.Core.Attrs.Value (DOM.Core.Nodes.First_Child (State_Node)),
            Pattern => "d") > 0 then
-            return True;
+            Disabled := True;
          end if;
-      end loop;
-      return False;
-   end Is_Disabled;
-
-   function Is_Online (Node : String) return Boolean is
-      SGE_Out : Parser.Tree;
-      Nodes   : DOM.Core.Node_List;
-      State_Node : DOM.Core.Node;
-   begin
-      SGE_Out := Parser.Setup (Selector => "-f -q \*@" & Node);
-      Nodes := Parser.Get_Elements_By_Tag_Name (SGE_Out, "state");
-      for I in 0 .. DOM.Core.Nodes.Length (Nodes) - 1 loop
-         State_Node := DOM.Core.Nodes.Item (Nodes, I);
          if Ada.Strings.Fixed.Count (Source => DOM.Core.Attrs.Value (DOM.Core.Nodes.First_Child (State_Node)),
            Pattern => "u") > 0 then
-            return False;
+            Online := False;
          end if;
       end loop;
-      return True;
-   end Is_Online;
 
-   function Is_Idle (Node : String) return Boolean is
-      SGE_Out : Parser.Tree;
-      Nodes   : DOM.Core.Node_List;
-      Slots_Node : DOM.Core.Node;
-      Count : Natural;
-   begin
-      -- call qstat -f -q *@Node -xml
-      SGE_Out := Parser.Setup (Selector => "-f -q \*@" & Node);
+      Idle := True;
       -- extract slots_used and slots_resv
       Nodes := Parser.Get_Elements_By_Tag_Name (SGE_Out, "slots_used");
       -- if any of these is >0, return false
@@ -170,7 +150,7 @@ package body Node_Groups is
          Slots_Node := DOM.Core.Nodes.Item (Nodes, I);
          Count := Integer'Value (DOM.Core.Attrs.Value (DOM.Core.Nodes.First_Child (Slots_Node)));
          if Count > 0 then
-            return False;
+            Idle := False;
          end if;
       end loop;
 
@@ -180,13 +160,39 @@ package body Node_Groups is
          Slots_Node := DOM.Core.Nodes.Item (Nodes, I);
          Count := Integer'Value (DOM.Core.Attrs.Value (DOM.Core.Nodes.First_Child (Slots_Node)));
          if Count > 0 then
-            return False;
+            Idle := False;
          end if;
       end loop;
+   end Query_Node;
 
-      -- otherwise, return true
-      return True;
+   function Is_Online_And_Idle (Node : String) return Boolean is
+      Online, Idle, Disabled : Boolean;
+   begin
+      Query_Node (Node     => Node,
+                  Disabled => Disabled,
+                  Online   => Online,
+                  Idle     => Idle);
+      return Online and then Idle;
+   end Is_Online_And_Idle;
+
+   function Is_Online (Node : String) return Boolean is
+      Online, Idle, Disabled : Boolean;
+   begin
+      Query_Node (Node     => Node,
+                  Disabled => Disabled,
+                  Online   => Online,
+                  Idle     => Idle);
+      return Online;
+   end Is_Online;
+
+   function Is_Idle (Node : String) return Boolean is
+      Online, Idle, Disabled : Boolean;
+   begin
+      Query_Node (Node     => Node,
+                  Disabled => Disabled,
+                  Online   => Online,
+                  Idle     => Idle);
+      return Idle;
    end Is_Idle;
-
 
 end Node_Groups;

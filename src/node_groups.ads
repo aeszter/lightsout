@@ -18,10 +18,11 @@ package Node_Groups is
                          Idle_Count : in out Integer);
    procedure Enable (Node : String);
    procedure Disable (Node : String);
-   function Is_Disabled (Node : String) return Boolean;
    procedure Poweroff (Node : String);
    procedure Poweron (Node : String);
-   function Is_Online (Node : String) return Boolean;
+   procedure Query_Node (Node : String; Disabled, Online, Idle : out Boolean);
+   function Is_Online_And_Idle (Node : String) return Boolean;
    function Is_Idle (Node : String) return Boolean;
+   function Is_Online (Node : String) return Boolean;
 
 end Node_Groups;
