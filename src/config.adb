@@ -42,10 +42,14 @@ package body Config is
          One_Node := Item (All_Nodes, I);
          if Node_Name (One_Node) = "nodegroup" then
             declare
-               New_Group : Node_Groups.Group;
+               New_Group   : Node_Groups.Group;
                Group_Nodes : Node_List;
-               Group_Node : Node;
+               Group_Node  : Node;
+               Name_Attr   : Attr;
             begin
+               Name_Attr := Get_Named_Item (Attributes (One_Node), "name");
+               New_Group.Group_Name := To_Unbounded_String (Value (Name_Attr));
+
                Group_Nodes := Child_Nodes (One_Node);
                for J in 0 .. Length (Group_Nodes) - 1 loop
                   Group_Node := Item (Group_Nodes, J);
@@ -75,7 +79,8 @@ package body Config is
                if not New_Group.Host_Names.Is_Empty then
                   Group_List.Append (New_Group);
                else
-                  Put_Line (Standard_Error, "Warning: empty node group ignored");
+                  Put_Line (Standard_Error, "Warning: empty node group """ &
+                            New_Group.Get_Name & """ ignored");
                end if;
             end;
          elsif Node_Name (One_Node) = "#text" or else

@@ -1,4 +1,3 @@
-with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Strings.Fixed;
 with Ada.Text_IO; use Ada.Text_IO;
 with Utils; use Utils; use Utils.String_Lists;
@@ -6,6 +5,15 @@ with Parser;
 with DOM.Core; with DOM.Core.Nodes; with DOM.Core.Attrs;
 
 package body Node_Groups is
+
+   --------------
+   -- Get_Name --
+   --------------
+
+   function Get_Name (What : Group) return String is
+   begin
+      return To_String (What.Group_Name);
+   end Get_Name;
 
    ------------
    -- Manage --
@@ -42,7 +50,8 @@ package body Node_Groups is
                end if;
                if Nodes_To_Switch_On = 0 then
                   Debug ("Not switching on nodes after " & The_Node &
-                         " because the threshold has been reached");
+                         " because the threshold of"
+                         & The_Group.Online_Target'Img & " has been reached");
                   exit Switch_On;
                end if;
                Next (Index);
@@ -75,8 +84,9 @@ package body Node_Groups is
                      Nodes_To_Switch_Off := Nodes_To_Switch_Off - 1;
                   end if;
                elsif Nodes_To_Switch_Off = 0 then
-                  Debug (Message => "Not switching off nodes after " &
-                        The_Node & " because the threshold has been reached.");
+                  Debug (Message => "Not switching off nodes after "
+                         & The_Node & " because the threshold of"
+                         & The_Group.Online_Target'Img & " has been reached.");
                   exit Switch_Off;
                end if;
                Next (Index);

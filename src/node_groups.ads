@@ -1,15 +1,19 @@
 with Ada.Containers.Doubly_Linked_Lists;
 use Ada.Containers;
 with Utils;
+with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package Node_Groups is
-   type Group is
+   type Group is tagged
       record
+         Group_Name    : Unbounded_String;
          Host_Names    : Utils.String_List;
          Min_Online    : Natural := 1;
          Max_Online    : Natural := 5;
          Online_Target : Natural := 4;
       end record;
+
+   function Get_Name (What : Group) return String;
 
    package Lists is new Doubly_Linked_Lists (Element_Type => Group);
    subtype List is Lists.List;
