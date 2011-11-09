@@ -33,8 +33,9 @@ package body Node_Groups is
       end loop;
 
       if Idle_Counter < The_Group.Min_Online then
-         Debug (Idle_Counter'Img & " Nodes idle when " & The_Group.Min_Online'Img
-                  & " is the minimum");
+         Debug (The_Group.Get_Name & ":" & Idle_Counter'Img
+                & " Nodes idle when" & The_Group.Min_Online'Img
+                & " is the minimum");
          Nodes_To_Switch_On := The_Group.Online_Target - Idle_Counter;
          Index := The_Group.Host_Names.First;
          Switch_On :
@@ -58,8 +59,9 @@ package body Node_Groups is
             end;
          end loop Switch_On;
       elsif Idle_Counter > The_Group.Max_Online then
-         Debug (Idle_Counter'Img & " Nodes idle when " & The_Group.Max_Online'Img
-                  & " is the maximum");
+         Debug (The_Group.Get_Name & ":" & Idle_Counter'Img
+                & " Nodes idle when" & The_Group.Max_Online'Img
+                & " is the maximum");
          Nodes_To_Switch_Off := Idle_Counter - The_Group.Online_Target;
          Index := The_Group.Host_Names.First;
          Switch_Off :
