@@ -15,6 +15,7 @@ package body Actions is
       Append (Args, "-e");
       Append (Args, To_POSIX_String ("*@" & Node));
       Debug ("enabling " & Node);
+      Open_Template (Template);
       Start_Process (Child    => PID,
                      Template => Template,
                      Pathname => "/cm/shared/apps/sge/current/bin/lx26-amd64/qmod",
@@ -38,6 +39,7 @@ package body Actions is
       Append (Args, "-d");
       Append (Args, To_POSIX_String ("*@" & Node));
       Debug ("disabling " & Node);
+      Open_Template (Template);
       Start_Process (Child    => PID,
                      Template => Template,
                      Pathname => "/cm/shared/apps/sge/current/bin/lx26-amd64/qmod",
@@ -61,6 +63,7 @@ package body Actions is
       Append (Args, "-c");
       Append (Args, To_POSIX_String ("device power -n " & Node & " on"));
       Debug ("switching on " & Node);
+      Open_Template (Template);
       Start_Process_Search (Child    => PID,
                             Template => Template,
                             Filename => "cmsh",
@@ -84,6 +87,7 @@ package body Actions is
       Append (Args, "-c");
       Append (Args, To_POSIX_String ("device power -n " & Node & "off"));
       Debug ("switching off " & Node);
+      Open_Template (Template);
       Start_Process_Search (Child    => PID,
                             Template => Template,
                             Filename => "cmsh",
