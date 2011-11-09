@@ -97,6 +97,11 @@ package body Node_Groups is
             end;
          end loop Switch_Off;
       end if;
+   exception
+      when E : Subcommand_Error =>
+         Ada.Text_IO.Put_Line (Exception_Message (E)
+                               & " -- skipping remainder of group "
+                               & The_Group.Get_Name);
    end Manage;
 
    procedure Check_Node (What       : Utils.String_Lists.Cursor;

@@ -23,9 +23,9 @@ package body Actions is
       Wait_For_Child_Process (Status => Return_Value, Child => PID);
       case Exit_Status_Of (Return_Value) is
          when Normal_Exit => return;
-         when Failed_Creation_Exit => raise Subcommand_Error with "Failed to create child process";
-         when Unhandled_Exception_Exit => raise Subcommand_Error with "Unhandled exception in child process";
-         when others => raise Subcommand_Error with "Child exited with status" & Exit_Status_Of (Return_Value)'Img;
+         when Failed_Creation_Exit => raise Subcommand_Error with "Failed to create qmod process";
+         when Unhandled_Exception_Exit => raise Subcommand_Error with "Unhandled exception in qmod";
+         when others => raise Subcommand_Error with "qmod exited with status" & Exit_Status_Of (Return_Value)'Img;
       end case;
    end Enable;
 
@@ -47,9 +47,9 @@ package body Actions is
       Wait_For_Child_Process (Status => Return_Value, Child => PID);
       case Exit_Status_Of (Return_Value) is
          when Normal_Exit => return;
-         when Failed_Creation_Exit => raise Subcommand_Error with "Failed to create child process";
-         when Unhandled_Exception_Exit => raise Subcommand_Error with "Unhandled exception in child process";
-         when others => raise Subcommand_Error with "Child exited with status" & Exit_Status_Of (Return_Value)'Img;
+         when Failed_Creation_Exit => raise Subcommand_Error with "Failed to create qmod process";
+         when Unhandled_Exception_Exit => raise Subcommand_Error with "Unhandled exception in qmod";
+         when others => raise Subcommand_Error with "qmod exited with status" & Exit_Status_Of (Return_Value)'Img;
       end case;
    end Disable;
 
@@ -71,9 +71,9 @@ package body Actions is
       Wait_For_Child_Process (Status => Return_Value, Child => PID);
       case Exit_Status_Of (Return_Value) is
          when Normal_Exit => return;
-         when Failed_Creation_Exit => raise Subcommand_Error with "Failed to create child process";
-         when Unhandled_Exception_Exit => raise Subcommand_Error with "Unhandled exception in child process";
-         when others => raise Subcommand_Error with "Child exited with status" & Exit_Status_Of (Return_Value)'Img;
+         when Failed_Creation_Exit => raise Subcommand_Error with "Failed to create cmsh process";
+         when Unhandled_Exception_Exit => raise Subcommand_Error with "Unhandled exception in cmsh";
+         when others => raise Subcommand_Error with "cmsh exited with status" & Exit_Status_Of (Return_Value)'Img;
       end case;
    end Poweron;
 
@@ -85,7 +85,7 @@ package body Actions is
    begin
       Append (Args, "cmsh");
       Append (Args, "-c");
-      Append (Args, To_POSIX_String ("device power -n " & Node & "off"));
+      Append (Args, To_POSIX_String ("device power -n " & Node & " off"));
       Debug ("switching off " & Node);
       Open_Template (Template);
       Start_Process_Search (Child    => PID,
@@ -95,9 +95,9 @@ package body Actions is
       Wait_For_Child_Process (Status => Return_Value, Child => PID);
       case Exit_Status_Of (Return_Value) is
          when Normal_Exit => return;
-         when Failed_Creation_Exit => raise Subcommand_Error with "Failed to create child process";
-         when Unhandled_Exception_Exit => raise Subcommand_Error with "Unhandled exception in child process";
-         when others => raise Subcommand_Error with "Child exited with status" & Exit_Status_Of (Return_Value)'Img;
+         when Failed_Creation_Exit => raise Subcommand_Error with "Failed to create cmsh process";
+         when Unhandled_Exception_Exit => raise Subcommand_Error with "Unhandled exception in cmsh";
+         when others => raise Subcommand_Error with "cmsh exited with status" & Exit_Status_Of (Return_Value)'Img;
       end case;
    end Poweroff;
 
