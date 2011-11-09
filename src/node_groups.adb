@@ -3,6 +3,8 @@ with Utils; use Utils; use Utils.String_Lists;
 with Parser;
 with DOM.Core; with DOM.Core.Nodes; with DOM.Core.Attrs;
 with Actions; use Actions;
+with Ada.Text_IO;
+with Ada.Exceptions; use Ada.Exceptions;
 
 package body Node_Groups is
 
@@ -150,6 +152,11 @@ package body Node_Groups is
             Idle := False;
          end if;
       end loop;
+   exception
+      when E : others =>
+         Ada.Text_IO.Put_Line ("Failed to query node " & Node & ": "
+                               & Exception_Message (E));
+         Idle := False; -- This is a safe state, since busy nodes will not be shut off
    end Query_Node;
 
    function Is_Online_And_Idle (Node : String) return Boolean is
