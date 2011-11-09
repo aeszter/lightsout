@@ -13,7 +13,7 @@ package body Actions is
    begin
       Append (Args, "qmod");
       Append (Args, "-e");
-      Append (Args, To_POSIX_String ("\*@" & Node));
+      Append (Args, To_POSIX_String ("*@" & Node));
       Debug ("enabling " & Node);
       Start_Process (Child    => PID,
                      Template => Template,
@@ -36,7 +36,7 @@ package body Actions is
    begin
       Append (Args, "qmod");
       Append (Args, "-d");
-      Append (Args, To_POSIX_String ("\*@" & Node));
+      Append (Args, To_POSIX_String ("*@" & Node));
       Debug ("disabling " & Node);
       Start_Process (Child    => PID,
                      Template => Template,
@@ -59,7 +59,7 @@ package body Actions is
    begin
       Append (Args, "cmsh");
       Append (Args, "-c");
-      Append (Args, To_POSIX_String ("device power -n " & Node & "on"));
+      Append (Args, To_POSIX_String ("device power -n " & Node & " on"));
       Debug ("switching on " & Node);
       Start_Process_Search (Child    => PID,
                             Template => Template,
