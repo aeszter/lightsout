@@ -17,16 +17,84 @@ package body Node_Groups is
       return To_String (What.Group_Name);
    end Get_Name;
 
+   ------------------------
+   -- Bring_Nodes_Online --
+   ------------------------
+
+   procedure Bring_Nodes_Online (How_Many : Integer; Hosts : Utils.String_List)
+   is
+      Nodes_To_Switch_On : Natural := How_Many;
+      Index    : Utils.String_Lists.Cursor := Hosts.First;
+   begin
+      while Index /= No_Element loop
+         declare
+            The_Node : constant String := To_String (Utils.String_Lists.Element (Index));
+         begin
+            if Nodes_To_Switch_On > 0 and then
+              not Is_Online (Node => The_Node) then
+               Poweron (Node => The_Node);
+               Enable (Node => The_Node);
+               Nodes_To_Switch_On := Nodes_To_Switch_On - 1;
+            end if;
+            if Nodes_To_Switch_On = 0 then
+               Debug ("Not switching on nodes after " & The_Node &
+                      " because the required number of"
+                      & How_Many'Img & " has been reached");
+               return;
+            end if;
+            Next (Index);
+         end;
+      end loop;
+   end Bring_Nodes_Online;
+
+   -----------------------
+   -- Put_Nodes_Offline --
+   -----------------------
+
+   procedure Put_Nodes_Offline (How_Many : Integer; Hosts : Utils.String_List)
+   is
+      Nodes_To_Switch_Off : Natural := How_Many;
+      Index    : Utils.String_Lists.Cursor := Hosts.First;
+   begin
+      while Index /= No_Element loop
+         declare
+            The_Node : constant String := To_String (Utils.String_Lists.Element (Index));
+         begin
+            if Nodes_To_Switch_Off > 0 and then
+              Is_Online_And_Idle (Node => The_Node) then
+               Disable (Node => The_Node);
+               if not Is_Idle (Node => The_Node) then
+                  -- the scheduler has been faster
+                  Enable (Node => The_Node);
+                  -- it is OK to enable The_Node without checking whether
+                  -- it has been disabled by an admin:
+                  -- if we are here, the node has been idle, but is no longer
+                  -- therefore, it can only have been disabled after we checked
+                  -- for Is_Idle. An admin is unlikely to have hit this short
+                  -- interval.
+               else
+                  Poweroff (Node => The_Node);
+                  Nodes_To_Switch_Off := Nodes_To_Switch_Off - 1;
+               end if;
+            elsif Nodes_To_Switch_Off = 0 then
+               Debug (Message => "Not switching off nodes after "
+                      & The_Node & " because the required number of"
+                      & How_Many'Img & " has been reached.");
+               return;
+            end if;
+            Next (Index);
+         end;
+      end loop;
+   end Put_Nodes_Offline;
+
    ------------
    -- Manage --
    ------------
 
    procedure Manage (What : Lists.Cursor) is
-      The_Group  : constant Group := Lists.Element (What);
       Idle_Counter : Integer := 0;
-      Index      : Utils.String_Lists.Cursor :=  The_Group.Host_Names.First;
-      Nodes_To_Switch_On : Natural;
-      Nodes_To_Switch_Off : Natural;
+      The_Group    : constant Group := Lists.Element (What);
+      Index        : Utils.String_Lists.Cursor :=  The_Group.Host_Names.First;
    begin
       while Index /= No_Element loop
          Check_Node (What       => Index,
@@ -38,64 +106,14 @@ package body Node_Groups is
          Debug (The_Group.Get_Name & ":" & Idle_Counter'Img
                 & " Nodes idle when" & The_Group.Min_Online'Img
                 & " is the minimum");
-         Nodes_To_Switch_On := The_Group.Online_Target - Idle_Counter;
-         Index := The_Group.Host_Names.First;
-         Switch_On :
-         while Index /= No_Element loop
-            declare
-               The_Node : constant String := To_String (Utils.String_Lists.Element (Index));
-            begin
-               if Nodes_To_Switch_On > 0 and then
-                 not Is_Online (Node => The_Node) then
-                  Poweron (Node => The_Node);
-                  Enable (Node => The_Node);
-                  Nodes_To_Switch_On := Nodes_To_Switch_On - 1;
-               end if;
-               if Nodes_To_Switch_On = 0 then
-                  Debug ("Not switching on nodes after " & The_Node &
-                         " because the threshold of"
-                         & The_Group.Online_Target'Img & " has been reached");
-                  exit Switch_On;
-               end if;
-               Next (Index);
-            end;
-         end loop Switch_On;
+         Bring_Nodes_Online (How_Many => The_Group.Online_Target - Idle_Counter,
+                             Hosts    => The_Group.Host_Names);
       elsif Idle_Counter > The_Group.Max_Online then
          Debug (The_Group.Get_Name & ":" & Idle_Counter'Img
                 & " Nodes idle when" & The_Group.Max_Online'Img
                 & " is the maximum");
-         Nodes_To_Switch_Off := Idle_Counter - The_Group.Online_Target;
-         Index := The_Group.Host_Names.First;
-         Switch_Off :
-         while Index /= No_Element loop
-            declare
-               The_Node : constant String := To_String (Utils.String_Lists.Element (Index));
-            begin
-               if Nodes_To_Switch_Off > 0 and then
-                 Is_Online_And_Idle (Node => The_Node) then
-                  Disable (Node => The_Node);
-                  if not Is_Idle (Node => The_Node) then
-         -- the scheduler has been faster
-                     Enable (Node => The_Node);
-                     -- it is OK to enable The_Node without checking whether
-                     -- it has been disabled by an admin:
-                     -- if we are here, the node has been idle, but is no longer
-                     -- therefore, it can only have been disabled after we checked
-                     -- for Is_Idle. An admin is unlikely to have hit this short
-                     -- interval.
-                  else
-                     Poweroff (Node => The_Node);
-                     Nodes_To_Switch_Off := Nodes_To_Switch_Off - 1;
-                  end if;
-               elsif Nodes_To_Switch_Off = 0 then
-                  Debug (Message => "Not switching off nodes after "
-                         & The_Node & " because the threshold of"
-                         & The_Group.Online_Target'Img & " has been reached.");
-                  exit Switch_Off;
-               end if;
-               Next (Index);
-            end;
-         end loop Switch_Off;
+         Put_Nodes_Offline (How_Many => Idle_Counter - The_Group.Online_Target,
+                            Hosts => The_Group.Host_Names);
       end if;
    exception
       when E : Subcommand_Error =>

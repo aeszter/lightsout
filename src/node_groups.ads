@@ -25,4 +25,10 @@ package Node_Groups is
    function Is_Idle (Node : String) return Boolean;
    function Is_Online (Node : String) return Boolean;
 
+private
+      procedure Bring_Nodes_Online (How_Many : Integer; Hosts : Utils.String_List);
+      -- switch on How_Many nodes from the Hosts list
+      procedure Put_Nodes_Offline (How_Many : Integer; Hosts : Utils.String_List);
+      -- switch off How_Many nodes from the Hosts list
+
 end Node_Groups;
