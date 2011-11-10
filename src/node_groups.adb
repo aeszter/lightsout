@@ -94,7 +94,7 @@ package body Node_Groups is
    procedure Manage (What : Lists.Cursor) is
       Idle_Counter : Integer := 0;
       The_Group    : constant Group := Lists.Element (What);
-      Index        : Utils.String_Lists.Cursor :=  The_Group.Host_Names.First;
+      Index        : Nodes.Cursor :=  The_Group.Hosts.First;
    begin
       while Index /= No_Element loop
          Check_Node (What       => Index,
@@ -107,13 +107,13 @@ package body Node_Groups is
                 & " Nodes idle when" & The_Group.Min_Online'Img
                 & " is the minimum");
          Bring_Nodes_Online (How_Many => The_Group.Online_Target - Idle_Counter,
-                             Hosts    => The_Group.Host_Names);
+                             Hosts    => The_Group.Hosts);
       elsif Idle_Counter > The_Group.Max_Online then
          Debug (The_Group.Get_Name & ":" & Idle_Counter'Img
                 & " Nodes idle when" & The_Group.Max_Online'Img
                 & " is the maximum");
          Put_Nodes_Offline (How_Many => Idle_Counter - The_Group.Online_Target,
-                            Hosts => The_Group.Host_Names);
+                            Hosts => The_Group.Hosts);
       end if;
    exception
       when E : Subcommand_Error =>
