@@ -46,6 +46,7 @@ package body Config is
                Group_Nodes : Node_List;
                Group_Node  : Node;
                Name_Attr   : Attr;
+               Maint_Attr  : Attr;
             begin
                Name_Attr := Get_Named_Item (Attributes (One_Node), "name");
                New_Group.Group_Name := To_Unbounded_String (Value (Name_Attr));
@@ -60,7 +61,9 @@ package body Config is
                   elsif Name (Group_Node) = "maximum" then
                      New_Group.Max_Online := Integer'Value (Value (First_Child (Group_Node)));
                   elsif Name (Group_Node) = "nodename" then
-                     New_Group.Host_Names.Append (To_Unbounded_String (Value (First_Child (Group_Node))));
+                     Maint_Attr := Get_Named_Item (Attributes (Group_Node), "maint");
+                     New_Group.Add_Host (Name => Value (First_Child (Group_Node)),
+                                         Mode => Value (Maint_Attr));
                   elsif Name (Group_Node) = "#text" or else
                     Name (Group_Node) = "#comment" then
                      null; -- ignore
@@ -76,7 +79,7 @@ package body Config is
                   raise Config_Error with "Maximum (" & New_Group.Max_Online'Img
                     & " ) < Target (" & New_Group.Online_Target'Img & " )";
                end if;
-               if not New_Group.Host_Names.Is_Empty then
+               if not New_Group.Hosts.Is_Empty then
                   Group_List.Append (New_Group);
                else
                   Put_Line (Standard_Error, "Warning: empty node group """ &
