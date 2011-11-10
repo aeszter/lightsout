@@ -8,6 +8,12 @@ package Utils is
 
    procedure Debug (Message : String);
    procedure Enable_Debug;
-   procedure Check_Debug_Flag;
+   procedure Check_Options;
+   function Dry_Run (Message : String) return Boolean;
+   function Terminate_After_Config return Boolean;
+
+private
    Debug_Enabled : Boolean := False;
+   Action        : Boolean := True;
+   Config_Only   : Boolean := False;
 end Utils;

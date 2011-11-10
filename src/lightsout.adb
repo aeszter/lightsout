@@ -12,10 +12,12 @@ procedure Lightsout is
 
    All_Nodes : Node_Groups.List;
 begin
-   Utils.Check_Debug_Flag;
+   Utils.Check_Options;
    Debug ("Debugging enabled");
    All_Nodes := Config.Read;
-   All_Nodes.Iterate (Node_Groups.Manage'Access);
+   if not Utils.Terminate_After_Config then
+      All_Nodes.Iterate (Node_Groups.Manage'Access);
+   end if;
 exception
    when E : Config.Config_Error =>
       Put_Line (File => Standard_Error,

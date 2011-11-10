@@ -11,6 +11,9 @@ package body Actions is
       Args         : POSIX.POSIX_String_List;
       Template     : Process_Template;
    begin
+      if Utils.Dry_Run ("enabling " & Node) then
+         return;
+      end if;
       Append (Args, "qmod");
       Append (Args, "-e");
       Append (Args, To_POSIX_String ("*@" & Node));
@@ -35,6 +38,9 @@ package body Actions is
       Args         : POSIX.POSIX_String_List;
       Template     : Process_Template;
    begin
+      if Utils.Dry_Run ("disabling " & Node) then
+         return;
+      end if;
       Append (Args, "qmod");
       Append (Args, "-d");
       Append (Args, To_POSIX_String ("*@" & Node));
@@ -59,6 +65,9 @@ package body Actions is
       Args         : POSIX.POSIX_String_List;
       Template     : Process_Template;
    begin
+      if Utils.Dry_Run ("switching on " & Node) then
+         return;
+      end if;
       Append (Args, "cmsh");
       Append (Args, "-c");
       Append (Args, To_POSIX_String ("device power -n " & Node & " on"));
@@ -83,6 +92,9 @@ package body Actions is
       Args         : POSIX.POSIX_String_List;
       Template     : Process_Template;
    begin
+      if Utils.Dry_Run ("switching off " & Node) then
+         return;
+      end if;
       Append (Args, "cmsh");
       Append (Args, "-c");
       Append (Args, To_POSIX_String ("device power -n " & Node & " off"));
