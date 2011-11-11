@@ -59,9 +59,13 @@ package body Node_Groups is
                Debug ("Not considering switching on" & Get_Name (The_Node) &
                       "because of maintenance """ & The_Node.Maintain'Img & """");
             end if;
-               Next (Index);
+            Next (Index);
          end;
       end loop;
+      if Nodes_To_Switch_On > 0 then
+         Debug ("Not switching on" & Nodes_To_Switch_On'Img
+                & " more nodes because none left");
+      end if;
    end Bring_Nodes_Online;
 
    -----------------------
