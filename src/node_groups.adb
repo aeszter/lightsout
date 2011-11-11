@@ -1,12 +1,24 @@
-with Ada.Strings.Fixed;
-with Utils; use Utils; use Utils.String_Lists;
-with Parser;
-with DOM.Core; with DOM.Core.Nodes; with DOM.Core.Attrs;
+with Utils; use Utils;
 with Actions; use Actions;
 with Ada.Text_IO;
 with Ada.Exceptions; use Ada.Exceptions;
+with Nodes; use Nodes.Node_Lists;
 
 package body Node_Groups is
+
+   procedure Add_Host (Where : in out Group; Name : String; Mode : String) is
+      New_Node : Nodes.Node;
+   begin
+      New_Node.Name := To_Unbounded_String (Name);
+      New_Node.Maintain := Maintenance'Value (Mode);
+      Where.Hosts.Append (New_Node);
+   exception
+      when E : Constraint_Error =>
+         Ada.Text_IO.Put_Line ("Unable to add host """ & Name
+                               & """, possibly because of illegal mode """
+                               & Mode & """");
+         Ada.Text_IO.Put_Line (Exception_Message (E));
+   end Add_Host;
 
    --------------
    -- Get_Name --
@@ -21,28 +33,33 @@ package body Node_Groups is
    -- Bring_Nodes_Online --
    ------------------------
 
-   procedure Bring_Nodes_Online (How_Many : Integer; Hosts : Utils.String_List)
+   procedure Bring_Nodes_Online (How_Many : Integer; Hosts : Nodes.List)
    is
       Nodes_To_Switch_On : Natural := How_Many;
-      Index    : Utils.String_Lists.Cursor := Hosts.First;
+      Index    : Nodes.Cursor := Hosts.First;
    begin
       while Index /= No_Element loop
          declare
-            The_Node : constant String := To_String (Utils.String_Lists.Element (Index));
+            The_Node : constant Node := Element (Index);
          begin
-            if Nodes_To_Switch_On > 0 and then
-              not Is_Online (Node => The_Node) then
-               Poweron (Node => The_Node);
-               Enable (Node => The_Node);
-               Nodes_To_Switch_On := Nodes_To_Switch_On - 1;
+            if The_Node.Maintain = none then
+               if Nodes_To_Switch_On > 0 and then
+                 not Is_Online (What => The_Node) then
+                  Poweron (What => The_Node);
+                  Enable (What => The_Node);
+                  Nodes_To_Switch_On := Nodes_To_Switch_On - 1;
+               end if;
+               if Nodes_To_Switch_On = 0 then
+                  Debug ("Not switching on nodes after " & Get_Name (The_Node) &
+                         " because the required number of"
+                         & How_Many'Img & " has been reached");
+                  return;
+               end if;
+            else -- Maintain /= none
+               Debug ("Not considering switching on" & Get_Name (The_Node) &
+                      "because of maintenance """ & The_Node.Maintain'Img & """");
             end if;
-            if Nodes_To_Switch_On = 0 then
-               Debug ("Not switching on nodes after " & The_Node &
-                      " because the required number of"
-                      & How_Many'Img & " has been reached");
-               return;
-            end if;
-            Next (Index);
+               Next (Index);
          end;
       end loop;
    end Bring_Nodes_Online;
@@ -51,36 +68,29 @@ package body Node_Groups is
    -- Put_Nodes_Offline --
    -----------------------
 
-   procedure Put_Nodes_Offline (How_Many : Integer; Hosts : Utils.String_List)
+   procedure Put_Nodes_Offline (How_Many : Integer; Hosts : Nodes.List)
    is
       Nodes_To_Switch_Off : Natural := How_Many;
-      Index    : Utils.String_Lists.Cursor := Hosts.First;
+      Index               : Nodes.Cursor := Hosts.First;
+      Success             : Boolean;
    begin
       while Index /= No_Element loop
          declare
-            The_Node : constant String := To_String (Utils.String_Lists.Element (Index));
+            The_Node : constant Node := Element (Index);
          begin
-            if Nodes_To_Switch_Off > 0 and then
-              Is_Online_And_Idle (Node => The_Node) then
-               Disable (Node => The_Node);
-               if not Is_Idle (Node => The_Node) then
-                  -- the scheduler has been faster
-                  Enable (Node => The_Node);
-                  -- it is OK to enable The_Node without checking whether
-                  -- it has been disabled by an admin:
-                  -- if we are here, the node has been idle, but is no longer
-                  -- therefore, it can only have been disabled after we checked
-                  -- for Is_Idle. An admin is unlikely to have hit this short
-                  -- interval.
-               else
-                  Poweroff (Node => The_Node);
-                  Nodes_To_Switch_Off := Nodes_To_Switch_Off - 1;
+            if The_Node.Maintain = none then
+               if Nodes_To_Switch_Off > 0 and then
+                 Is_Online_And_Idle (What => The_Node) then
+                  Try_To_Poweroff (The_Node => The_Node, Succeeded => Success);
+                  if Success then
+                     Nodes_To_Switch_Off := Nodes_To_Switch_Off - 1;
+                  end if;
+               elsif Nodes_To_Switch_Off = 0 then
+                  Debug (Message => "Not switching off nodes after "
+                         & Get_Name (The_Node) & " because the required number of"
+                         & How_Many'Img & " has been reached.");
+                  return;
                end if;
-            elsif Nodes_To_Switch_Off = 0 then
-               Debug (Message => "Not switching off nodes after "
-                      & The_Node & " because the required number of"
-                      & How_Many'Img & " has been reached.");
-               return;
             end if;
             Next (Index);
          end;
@@ -122,94 +132,5 @@ package body Node_Groups is
                                & The_Group.Get_Name);
    end Manage;
 
-   procedure Check_Node (What       : Utils.String_Lists.Cursor;
-                         Idle_Count : in out Integer) is
-      The_Node : constant String := To_String (Element (What));
-   begin
-      if Is_Online_And_Idle (Node => The_Node) then
-         Idle_Count := Idle_Count + 1;
-      end if;
-   end Check_Node;
-
-   procedure Query_Node (Node : String; Disabled, Online, Idle : out Boolean) is
-      SGE_Out : Parser.Tree;
-      Nodes   : DOM.Core.Node_List;
-      State_Node : DOM.Core.Node;
-      Slots_Node : DOM.Core.Node;
-      Count : Natural;
-   begin
-      SGE_Out := Parser.Setup (Selector => "-f -q \*@" & Node);
-      Nodes := Parser.Get_Elements_By_Tag_Name (SGE_Out, "state");
-      Disabled := False;
-      Online := True;
-      for I in 0 .. DOM.Core.Nodes.Length (Nodes) - 1 loop
-         State_Node := DOM.Core.Nodes.Item (Nodes, I);
-         if Ada.Strings.Fixed.Count (Source => DOM.Core.Attrs.Value (DOM.Core.Nodes.First_Child (State_Node)),
-           Pattern => "d") > 0 then
-            Disabled := True;
-         end if;
-         if Ada.Strings.Fixed.Count (Source => DOM.Core.Attrs.Value (DOM.Core.Nodes.First_Child (State_Node)),
-           Pattern => "u") > 0 then
-            Online := False;
-         end if;
-      end loop;
-
-      Idle := True;
-      -- extract slots_used and slots_resv
-      Nodes := Parser.Get_Elements_By_Tag_Name (SGE_Out, "slots_used");
-      -- if any of these is >0, return false
-      for I in 0 .. DOM.Core.Nodes.Length (Nodes) - 1 loop
-         Slots_Node := DOM.Core.Nodes.Item (Nodes, I);
-         Count := Integer'Value (DOM.Core.Attrs.Value (DOM.Core.Nodes.First_Child (Slots_Node)));
-         if Count > 0 then
-            Idle := False;
-         end if;
-      end loop;
-
-      Nodes := Parser.Get_Elements_By_Tag_Name (SGE_Out, "slots_resv");
-      -- if any of these is >0, return false
-      for I in 0 .. DOM.Core.Nodes.Length (Nodes) - 1 loop
-         Slots_Node := DOM.Core.Nodes.Item (Nodes, I);
-         Count := Integer'Value (DOM.Core.Attrs.Value (DOM.Core.Nodes.First_Child (Slots_Node)));
-         if Count > 0 then
-            Idle := False;
-         end if;
-      end loop;
-   exception
-      when E : others =>
-         Ada.Text_IO.Put_Line ("Failed to query node " & Node & ": "
-                               & Exception_Message (E));
-         Idle := False; -- This is a safe state, since busy nodes will not be shut off
-   end Query_Node;
-
-   function Is_Online_And_Idle (Node : String) return Boolean is
-      Online, Idle, Disabled : Boolean;
-   begin
-      Query_Node (Node     => Node,
-                  Disabled => Disabled,
-                  Online   => Online,
-                  Idle     => Idle);
-      return Online and then Idle;
-   end Is_Online_And_Idle;
-
-   function Is_Online (Node : String) return Boolean is
-      Online, Idle, Disabled : Boolean;
-   begin
-      Query_Node (Node     => Node,
-                  Disabled => Disabled,
-                  Online   => Online,
-                  Idle     => Idle);
-      return Online;
-   end Is_Online;
-
-   function Is_Idle (Node : String) return Boolean is
-      Online, Idle, Disabled : Boolean;
-   begin
-      Query_Node (Node     => Node,
-                  Disabled => Disabled,
-                  Online   => Online,
-                  Idle     => Idle);
-      return Idle;
-   end Is_Idle;
 
 end Node_Groups;

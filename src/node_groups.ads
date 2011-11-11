@@ -1,7 +1,5 @@
-with Ada.Containers.Doubly_Linked_Lists;
-use Ada.Containers;
-with Utils;
-with Nodes;
+with Ada.Containers.Doubly_Linked_Lists; use Ada.Containers;
+with Nodes; use Nodes;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package Node_Groups is
@@ -15,22 +13,16 @@ package Node_Groups is
       end record;
 
    function Get_Name (What : Group) return String;
-   procedure Add_Host (Where : Group; Name : String; Mode : String);
+   procedure Add_Host (Where : in out Group; Name : String; Mode : String);
 
    package Lists is new Doubly_Linked_Lists (Element_Type => Group);
    subtype List is Lists.List;
    procedure Manage (What : Lists.Cursor);
-   procedure Check_Node (What       : Utils.String_Lists.Cursor;
-                         Idle_Count : in out Integer);
-   procedure Query_Node (Node : String; Disabled, Online, Idle : out Boolean);
-   function Is_Online_And_Idle (Node : String) return Boolean;
-   function Is_Idle (Node : String) return Boolean;
-   function Is_Online (Node : String) return Boolean;
 
 private
-      procedure Bring_Nodes_Online (How_Many : Integer; Hosts : Nodes.List);
-      -- switch on How_Many nodes from the Hosts list
-      procedure Put_Nodes_Offline (How_Many : Integer; Hosts : Utils.Nodes_List);
-      -- switch off How_Many nodes from the Hosts list
+   procedure Bring_Nodes_Online (How_Many : Integer; Hosts : Nodes.List);
+   -- switch on How_Many nodes from the Hosts list
+   procedure Put_Nodes_Offline (How_Many : Integer; Hosts : Nodes.List);
+   -- switch off How_Many nodes from the Hosts list
 
 end Node_Groups;
