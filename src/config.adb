@@ -62,8 +62,13 @@ package body Config is
                      New_Group.Max_Online := Integer'Value (Value (First_Child (Group_Node)));
                   elsif Name (Group_Node) = "nodename" then
                      Maint_Attr := Get_Named_Item (Attributes (Group_Node), "maint");
-                     New_Group.Add_Host (Name => Value (First_Child (Group_Node)),
+                     if Maint_Attr = null then
+                        New_Group.Add_Host (Name => Value (First_Child (Group_Node)),
+                                         Mode => "none");
+                     else
+                        New_Group.Add_Host (Name => Value (First_Child (Group_Node)),
                                          Mode => Value (Maint_Attr));
+                     end if;
                   elsif Name (Group_Node) = "#text" or else
                     Name (Group_Node) = "#comment" then
                      null; -- ignore
