@@ -1,5 +1,6 @@
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Command_Line; use Ada.Command_Line;
+with POSIX.Process_Primitives;
 
 package body Utils is
 
@@ -50,7 +51,7 @@ package body Utils is
             Ada.Text_IO.Put_Line ("--check-config only checks the config file, "
                                   & "then terminates the program");
             Ada.Text_IO.Put_Line ("--help shows this message, then terminates");
-            exit;
+            POSIX.Process_Primitives.Exit_Process;
          else
             raise Program_Error with "unknown option: " & Argument (Arg);
          end if;
