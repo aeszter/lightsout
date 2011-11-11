@@ -4,6 +4,7 @@ with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Exceptions; use Ada.Exceptions;
 with Ada.Command_Line; use Ada.Command_Line;
 with Utils; use Utils;
+with Statistics;
 
 
 procedure Lightsout is
@@ -17,6 +18,7 @@ begin
    All_Nodes := Config.Read;
    if not Utils.Terminate_After_Config then
       All_Nodes.Iterate (Node_Groups.Manage'Access);
+      Statistics.Print;
    end if;
 exception
    when E : Config.Config_Error =>

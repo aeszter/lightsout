@@ -3,6 +3,7 @@ with Actions; use Actions;
 with Ada.Text_IO;
 with Ada.Exceptions; use Ada.Exceptions;
 with Nodes; use Nodes.Node_Lists;
+with Statistics;
 
 package body Node_Groups is
 
@@ -65,6 +66,7 @@ package body Node_Groups is
       if Nodes_To_Switch_On > 0 then
          Debug ("Not switching on" & Nodes_To_Switch_On'Img
                 & " more nodes because none left");
+         Statistics.Too_Few_Nodes (Number => Nodes_To_Switch_On);
       end if;
    end Bring_Nodes_Online;
 
@@ -113,6 +115,7 @@ package body Node_Groups is
       while Index /= No_Element loop
          Check_Node (What       => Index,
                      Idle_Count => Idle_Counter);
+         Statistics.Node_Seen;
          Next (Index);
       end loop;
 

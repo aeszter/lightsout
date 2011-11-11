@@ -3,6 +3,7 @@ with POSIX.Process_Primitives; use POSIX.Process_Primitives;
 with POSIX.Process_Identification; use POSIX.Process_Identification;
 with Utils; use Utils;
 with Nodes; use Nodes;
+with Statistics;
 
 package body Actions is
 
@@ -69,6 +70,7 @@ package body Actions is
       Template     : Process_Template;
       The_Node     : constant String := Get_Name (What);
    begin
+      Statistics.Node_Switched_On;
       if Utils.Dry_Run ("switching on " & The_Node) then
          return;
       end if;
@@ -97,6 +99,7 @@ package body Actions is
       Template     : Process_Template;
       The_Node     : constant String := Get_Name (What);
    begin
+      Statistics.Node_Switched_Off;
       if Utils.Dry_Run ("switching off " & The_Node) then
          return;
       end if;
@@ -134,8 +137,11 @@ package body Actions is
          -- therefore, it can only have been disabled after we checked
          -- for Is_Idle. An admin is unlikely to have hit this short
          -- interval.
+         Statistics.Race;
+         Succeeded := False;
       else
          Poweroff (What => The_Node);
+         Succeeded := True;
       end if;
    end Try_To_Poweroff;
 
