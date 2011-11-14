@@ -1,6 +1,7 @@
 with POSIX; use POSIX;
 with POSIX.Process_Primitives; use POSIX.Process_Primitives;
 with POSIX.Process_Identification; use POSIX.Process_Identification;
+with POSIX.IO;
 with Utils; use Utils;
 with Nodes; use Nodes;
 with Statistics;
@@ -22,6 +23,8 @@ package body Actions is
       Append (Args, To_POSIX_String ("*@" & The_Node));
       Debug ("enabling " & The_Node);
       Open_Template (Template);
+      Set_File_Action_To_Close (Template => Template,
+                                File     => POSIX.IO.Standard_Output);
       Start_Process (Child    => PID,
                      Template => Template,
                      Pathname => "/cm/shared/apps/sge/current/bin/lx26-amd64/qmod",
@@ -50,6 +53,8 @@ package body Actions is
       Append (Args, To_POSIX_String ("*@" & The_Node));
       Debug ("disabling " & The_Node);
       Open_Template (Template);
+      Set_File_Action_To_Close (Template => Template,
+                                File     => POSIX.IO.Standard_Output);
       Start_Process (Child    => PID,
                      Template => Template,
                      Pathname => "/cm/shared/apps/sge/current/bin/lx26-amd64/qmod",
@@ -79,6 +84,8 @@ package body Actions is
       Append (Args, To_POSIX_String ("device power -n " & The_Node & " on"));
       Debug ("switching on " & The_Node);
       Open_Template (Template);
+      Set_File_Action_To_Close (Template => Template,
+                                File     => POSIX.IO.Standard_Output);
       Start_Process_Search (Child    => PID,
                             Template => Template,
                             Filename => "cmsh",
@@ -108,6 +115,8 @@ package body Actions is
       Append (Args, To_POSIX_String ("device power -n " & The_Node & " off"));
       Debug ("switching off " & The_Node);
       Open_Template (Template);
+      Set_File_Action_To_Close (Template => Template,
+                                File     => POSIX.IO.Standard_Output);
       Start_Process_Search (Child    => PID,
                             Template => Template,
                             Filename => "cmsh",
