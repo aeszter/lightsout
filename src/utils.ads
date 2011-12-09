@@ -7,6 +7,7 @@ package Utils is
    subtype String_List is String_Lists.List;
 
    procedure Debug (Message : String);
+   procedure Verbose_Message (Message : String);
    procedure Enable_Debug;
    procedure Check_Options;
    function Dry_Run (Message         : String;

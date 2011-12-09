@@ -15,6 +15,17 @@ package body Utils is
       end if;
    end Debug;
 
+   ---------------------
+   -- Verbose_Message --
+   ---------------------
+
+   procedure Verbose_Message (Message : String) is
+   begin
+      if Verbose then
+         Put_Line (Message);
+      end if;
+   end Verbose_Message;
+
    ------------------
    -- Enable_Debug --
    ------------------

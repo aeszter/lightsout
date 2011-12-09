@@ -25,8 +25,10 @@ package body Nodes is
                Idle_Count := Idle_Count + 1;
             end if;
          when ignore =>
+            Verbose_Message ("Maintenance: ignoring " & Get_Name (The_Node));
             return;
          when disable =>
+            Verbose_Message ("Maintenance: disabling " & Get_Name (The_Node));
             Disable (The_Node);
          when off =>
             if Is_Online_And_Idle (The_Node) then
