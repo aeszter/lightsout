@@ -15,7 +15,8 @@ package body Actions is
       Template     : Process_Template;
       The_Node     : constant String := Get_Name (What);
    begin
-      if Utils.Dry_Run ("enabling " & The_Node) then
+      if Utils.Dry_Run (Message => "enabling " & The_Node,
+                       Show_On_Verbose => False) then
          return;
       end if;
       Append (Args, "qmod");
@@ -45,7 +46,8 @@ package body Actions is
       Template     : Process_Template;
       The_Node     : constant String := Get_Name (What);
    begin
-      if Utils.Dry_Run ("disabling " & The_Node) then
+      if Utils.Dry_Run (Message => "disabling " & The_Node,
+                       Show_On_Verbose => False) then
          return;
       end if;
       Append (Args, "qmod");

@@ -9,11 +9,17 @@ package Utils is
    procedure Debug (Message : String);
    procedure Enable_Debug;
    procedure Check_Options;
-   function Dry_Run (Message : String) return Boolean;
+   function Dry_Run (Message         : String;
+                     Show_On_Verbose : Boolean := True) return Boolean;
+   -- return whether Action is false
+   -- if so, print Message
+   -- also, print Message if both Verbose and Show_On_Verbose are true
+
    function Terminate_After_Config return Boolean;
 
 private
    Debug_Enabled : Boolean := False;
    Action        : Boolean := True;
    Config_Only   : Boolean := False;
+   Verbose       : Boolean := False;
 end Utils;
