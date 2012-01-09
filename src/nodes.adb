@@ -18,6 +18,7 @@ package body Nodes is
                          Idle_Count : in out Integer) is
       The_Node : constant Node := Element (What);
       Success  : Boolean;
+      Disabled, Online, Idle : Boolean;
    begin
       case The_Node.Maintain is
          when none =>
@@ -31,16 +32,33 @@ package body Nodes is
             Verbose_Message ("Maintenance: disabling " & Get_Name (The_Node));
             Disable (The_Node);
          when off =>
-            if Is_Online_And_Idle (The_Node) then
+            Query_Node (What     => The_Node,
+                        Disabled => Disabled,
+                        Online   => Online,
+                        Idle     => Idle);
+            if Online and Idle then
                Try_To_Poweroff (The_Node  => The_Node,
                                 Succeeded => Success);
                if Success then
                   Ada.Text_IO.Put_Line ("Powered off " & Get_Name (The_Node)
                                         & " for maintenance");
                else
+                  Disable (The_Node);
                   Debug ("Could not (yet) power off " & Get_Name (The_Node)
                          & " for maintenance");
                end if;
+            elsif not Idle and not Disabled then
+               Verbose_Message ("Maintenance: disabling " & Get_Name (The_Node)
+                               & " (poweroff pending)");
+               Disable (The_Node);
+            elsif Online and Disabled then
+               Debug ("Waiting for disabled " & Get_Name (The_Node)
+                      & " to become idle");
+            elsif not Online then
+               Debug ("Will not power off " & Get_Name (The_Node)
+                      & " because it is already off");
+            else
+               raise Program_Error with "This code should be unreachable";
             end if;
       end case;
    end Check_Node;
