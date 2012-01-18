@@ -8,6 +8,8 @@ with Statistics;
 
 package body Actions is
 
+   procedure Activate_Power_Switch (The_Node : String; Command : String);
+
    procedure Enable (What : Nodes.Node) is
       PID          : Process_ID;
       Return_Value : Termination_Status;
@@ -70,66 +72,55 @@ package body Actions is
       end case;
    end Disable;
 
-   procedure Poweron (What : Nodes.Node) is
-      PID          : Process_ID;
-      Return_Value : Termination_Status;
+   ---------------------------
+   -- Activate_Power_Switch --
+   ---------------------------
+
+   procedure Activate_Power_Switch (The_Node : String; Command : String) is
       Args         : POSIX.POSIX_String_List;
       Template     : Process_Template;
+      PID          : Process_ID;
+      Return_Value : Termination_Status;
+   begin
+      Append (Args, "cmsh");
+      Append (Args, "-c");
+      Append (Args, To_POSIX_String ("device power -n " & The_Node & " " & Command));
+      Open_Template (Template);
+      Set_File_Action_To_Close (Template => Template,
+                                File     => POSIX.IO.Standard_Output);
+      Start_Process_Search (Child    => PID,
+                            Template => Template,
+                            Filename => "cmsh",
+                            Arg_List => Args);
+      Wait_For_Child_Process (Status => Return_Value, Child => PID);
+      case Exit_Status_Of (Return_Value) is
+         when Normal_Exit => return;
+         when Failed_Creation_Exit => raise Subcommand_Error with "Failed to create cmsh process";
+         when Unhandled_Exception_Exit => raise Subcommand_Error with "Unhandled exception in cmsh";
+         when others => raise Subcommand_Error with "cmsh exited with status" & Exit_Status_Of (Return_Value)'Img;
+      end case;
+   end Activate_Power_Switch;
+
+   procedure Poweron (What : Nodes.Node) is
       The_Node     : constant String := Get_Name (What);
    begin
       Statistics.Node_Switched_On;
       if Utils.Dry_Run ("switching on " & The_Node) then
          return;
       end if;
-      Append (Args, "cmsh");
-      Append (Args, "-c");
-      Append (Args, To_POSIX_String ("device power -n " & The_Node & " on"));
       Debug ("switching on " & The_Node);
-      Open_Template (Template);
-      Set_File_Action_To_Close (Template => Template,
-                                File     => POSIX.IO.Standard_Output);
-      Start_Process_Search (Child    => PID,
-                            Template => Template,
-                            Filename => "cmsh",
-                            Arg_List => Args);
-      Wait_For_Child_Process (Status => Return_Value, Child => PID);
-      case Exit_Status_Of (Return_Value) is
-         when Normal_Exit => return;
-         when Failed_Creation_Exit => raise Subcommand_Error with "Failed to create cmsh process";
-         when Unhandled_Exception_Exit => raise Subcommand_Error with "Unhandled exception in cmsh";
-         when others => raise Subcommand_Error with "cmsh exited with status" & Exit_Status_Of (Return_Value)'Img;
-      end case;
+      Activate_Power_Switch (The_Node, "on");
    end Poweron;
 
    procedure Poweroff (What : Nodes.Node) is
-      PID          : Process_ID;
-      Return_Value : Termination_Status;
-      Args         : POSIX.POSIX_String_List;
-      Template     : Process_Template;
       The_Node     : constant String := Get_Name (What);
    begin
       Statistics.Node_Switched_Off;
       if Utils.Dry_Run ("switching off " & The_Node) then
          return;
       end if;
-      Append (Args, "cmsh");
-      Append (Args, "-c");
-      Append (Args, To_POSIX_String ("device power -n " & The_Node & " off"));
       Debug ("switching off " & The_Node);
-      Open_Template (Template);
-      Set_File_Action_To_Close (Template => Template,
-                                File     => POSIX.IO.Standard_Output);
-      Start_Process_Search (Child    => PID,
-                            Template => Template,
-                            Filename => "cmsh",
-                            Arg_List => Args);
-      Wait_For_Child_Process (Status => Return_Value, Child => PID);
-      case Exit_Status_Of (Return_Value) is
-         when Normal_Exit => return;
-         when Failed_Creation_Exit => raise Subcommand_Error with "Failed to create cmsh process";
-         when Unhandled_Exception_Exit => raise Subcommand_Error with "Unhandled exception in cmsh";
-         when others => raise Subcommand_Error with "cmsh exited with status" & Exit_Status_Of (Return_Value)'Img;
-      end case;
+      Activate_Power_Switch (The_Node, "off");
    end Poweroff;
 
    ---------------------
