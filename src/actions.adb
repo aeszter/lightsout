@@ -123,6 +123,16 @@ package body Actions is
       Activate_Power_Switch (The_Node, "off");
    end Poweroff;
 
+   procedure Powercycle (What : Nodes.Node) is
+      The_Node     : constant String := Get_Name (What);
+   begin
+      if Utils.Dry_Run ("powercycling " & The_Node) then
+         return;
+      end if;
+      Debug ("powercycling " & The_Node);
+      Activate_Power_Switch (The_Node, "reset");
+   end Powercycle;
+
    ---------------------
    -- Try_To_Poweroff --
    ---------------------
