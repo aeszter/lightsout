@@ -1,6 +1,8 @@
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Command_Line; use Ada.Command_Line;
 with POSIX.Process_Primitives;
+with Ada.Numerics; use Ada.Numerics;
+
 
 package body Utils is
 
@@ -91,5 +93,16 @@ package body Utils is
    begin
       return Config_Only;
    end Terminate_After_Config;
+
+   function Random return Float_Random.Uniformly_Distributed is
+   begin
+      return Float_Random.Random (Random_Generator);
+   end Random;
+
+   procedure Init_Random is
+   begin
+      Float_Random.Reset (Random_Generator);
+   end Init_Random;
+
 
 end Utils;

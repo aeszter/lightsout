@@ -22,8 +22,15 @@ package body Nodes is
    begin
       case The_Node.Maintain is
          when none =>
-            if Is_Online_And_Idle (What => The_Node) then
+            Query_Node (What     => The_Node,
+                        Disabled => Disabled,
+                        Online   => Online,
+                        Idle     => Idle);
+            if Online and Idle then
                Idle_Count := Idle_Count + 1;
+            end if;
+            if Online and Disabled then
+               Handle_Disabled_Node (The_Node);
             end if;
          when ignore =>
             Verbose_Message ("Maintenance: ignoring " & Get_Name (The_Node));
@@ -164,4 +171,18 @@ package body Nodes is
    begin
       return To_String (What.Name);
    end Get_Name;
+
+   --------------------------
+   -- Handle_Disabled_Node --
+   --------------------------
+
+   procedure Handle_Disabled_Node (The_Node : Node) is
+   begin
+      if Utils.Random > 0.1 then
+         return;
+      end if;
+      Ada.Text_IO.Put_Line ("Enabling suspect " & To_String (The_Node.Name));
+      Enable (The_Node);
+   end Handle_Disabled_Node;
+
 end Nodes;

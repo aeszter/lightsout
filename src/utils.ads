@@ -1,6 +1,7 @@
 with Ada.Containers.Doubly_Linked_Lists; use Ada.Containers;
 with Ada.Strings.Unbounded;
 use Ada.Strings.Unbounded;
+with Ada.Numerics.Float_Random;
 
 package Utils is
    package String_Lists is new Doubly_Linked_Lists (Element_Type => Unbounded_String);
@@ -18,9 +19,12 @@ package Utils is
 
    function Terminate_After_Config return Boolean;
 
+   function Random return Ada.Numerics.Float_Random.Uniformly_Distributed;
+   procedure Init_Random;
 private
    Debug_Enabled : Boolean := False;
    Action        : Boolean := True;
    Config_Only   : Boolean := False;
    Verbose       : Boolean := False;
+   Random_Generator : Ada.Numerics.Float_Random.Generator;
 end Utils;

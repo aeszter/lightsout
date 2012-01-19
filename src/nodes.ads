@@ -14,6 +14,9 @@ package Nodes is
    function Is_Online_And_Idle (What : Node) return Boolean;
    function Is_Idle (What : Node) return Boolean;
    function Is_Online (What : Node) return Boolean;
+   procedure Handle_Disabled_Node (The_Node : Node);
+   -- call only for nodes that are disabled for unknown reasons (i.e. not by
+   -- us during this run, nor in maintenance)
 
    package Node_Lists is new Ada.Containers.Doubly_Linked_Lists (
       Element_Type => Node);
