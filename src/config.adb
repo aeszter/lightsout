@@ -7,6 +7,7 @@ with Sax.Readers; use Sax.Readers;
 with Input_Sources.File; use Input_Sources.File;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Text_IO; use Ada.Text_IO;
+with Ada.Exceptions; use Ada.Exceptions;
 
 package body Config is
 
@@ -101,6 +102,10 @@ package body Config is
       end loop;
 
       return Group_List;
+   exception
+         when Config_Error => raise;
+      when E : others =>
+         raise Config_Error with "Unable to read config file: " & Exception_Message (E);
    end Read;
 
 end Config;

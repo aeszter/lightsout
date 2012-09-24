@@ -27,6 +27,6 @@ exception
       Set_Exit_Status (Code => Exit_Config_Error);
    when E : others =>
       Put_Line (File => Standard_Error,
-                Item => "Unexpected error: " & Exception_Message (E));
+                Item => "Unexpected error (" & Exception_Name (E) & "): " & Exception_Message (E));
       Set_Exit_Status (Code => Exit_Unknown_Error);
 end Lightsout;
