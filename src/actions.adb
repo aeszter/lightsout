@@ -5,6 +5,7 @@ with POSIX.IO;
 with Utils; use Utils;
 with Nodes; use Nodes;
 with Statistics;
+with Ada.Exceptions; use Ada.Exceptions;
 
 package body Actions is
 
@@ -39,6 +40,10 @@ package body Actions is
          when Unhandled_Exception_Exit => raise Subcommand_Error with "Unhandled exception in qmod";
          when others => raise Subcommand_Error with "qmod exited with status" & Exit_Status_Of (Return_Value)'Img;
       end case;
+   exception
+         when E : POSIX_Error =>
+      raise Subcommand_Error with "qmod raised error when called with ""-e *@" & The_Node &
+      """:" & Exception_Message (E);
    end Enable;
 
    procedure Disable (What : Nodes.Node) is
@@ -70,6 +75,10 @@ package body Actions is
          when Unhandled_Exception_Exit => raise Subcommand_Error with "Unhandled exception in qmod";
          when others => raise Subcommand_Error with "qmod exited with status" & Exit_Status_Of (Return_Value)'Img;
       end case;
+      exception
+      when E : POSIX_Error =>
+      raise Subcommand_Error with "qmod raised error when called with ""-d *@" & The_Node &
+      """:" & Exception_Message (E);
    end Disable;
 
    ---------------------------
@@ -99,6 +108,11 @@ package body Actions is
          when Unhandled_Exception_Exit => raise Subcommand_Error with "Unhandled exception in cmsh";
          when others => raise Subcommand_Error with "cmsh exited with status" & Exit_Status_Of (Return_Value)'Img;
       end case;
+   exception
+      when E : POSIX_Error =>
+         raise Subcommand_Error with "cmsh raised error when called with ""device power -n "
+           & The_Node & " " & Command & """:" & Exception_Message (E);
+
    end Activate_Power_Switch;
 
    procedure Poweron (What : Nodes.Node) is
