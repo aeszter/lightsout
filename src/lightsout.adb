@@ -13,6 +13,7 @@ procedure Lightsout is
 
    All_Nodes : Node_Groups.List;
 begin
+   Put_Line ("Lightsout " & Utils.Version & " by aeszter@mpibpc.mpg.de");
    Utils.Check_Options;
    Debug ("Debugging enabled");
    All_Nodes := Config.Read;
