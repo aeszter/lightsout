@@ -1,5 +1,6 @@
 with Ada.Containers.Doubly_Linked_Lists; use Ada.Containers;
 with Nodes; use Nodes;
+with Twins; use Twins;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package Node_Groups is
@@ -14,6 +15,7 @@ package Node_Groups is
 
    function Get_Name (What : Group) return String;
    procedure Add_Host (Where : in out Group; Name : String; Mode : String);
+   procedure Add_Twin (Where : in out Group; What : Twin; Mode : String);
 
    package Lists is new Doubly_Linked_Lists (Element_Type => Group);
    subtype List is Lists.List;
