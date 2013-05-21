@@ -47,7 +47,7 @@ package body Actions is
                                 File     => POSIX.IO.Standard_Output);
       Start_Process (Child    => PID,
                      Template => Template,
-                     Pathname => "/cm/shared/apps/sge/current/bin/lx26-amd64/qmod",
+                     Pathname => "/cm/shared/apps/sge/current/bin/linux-x64/qmod",
                      Arg_List => Args);
       Wait_For_Child_Process (Status => Return_Value, Child => PID);
       case Exit_Status_Of (Return_Value) is
