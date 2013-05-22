@@ -4,6 +4,8 @@ use Ada.Strings.Unbounded;
 with Ada.Numerics.Float_Random;
 
 package Utils is
+   Version : String := "v1.0";
+
    package String_Lists is new Doubly_Linked_Lists (Element_Type => Unbounded_String);
    subtype String_List is String_Lists.List;
 

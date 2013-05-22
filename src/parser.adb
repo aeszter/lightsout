@@ -14,7 +14,7 @@ package body Parser is
       Reader      : DOM.Readers.Tree_Reader;
       SGE_Command : Pipe_Stream;
       Command_String : constant String := sgeroot
-        & "/bin/lx26-amd64/" & Command & " " & Selector & " -xml";
+        & "/bin/linux-x64/" & Command & " " & Selector & " -xml";
    begin
       SGE_Command.Set_Public_Id ("qstat");
       SGE_Command.execute ("SGE_ROOT=" & sgeroot & " " &
