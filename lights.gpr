@@ -1,4 +1,5 @@
 with "../florist/lib/gnat/florist";
+with "../lib/gnat/aws";
 
 project Lights is
 
