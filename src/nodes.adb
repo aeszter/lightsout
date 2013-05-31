@@ -7,6 +7,7 @@ with Nodes; use Nodes.Node_Lists;
 with DOM.Core.Nodes;
 with DOM.Core.Attrs;
 with Ada.Exceptions; use Ada.Exceptions;
+with Bugzilla;
 
 package body Nodes is
 
@@ -49,6 +50,12 @@ package body Nodes is
                if Success then
                   Ada.Text_IO.Put_Line ("Powered off " & Get_Name (The_Node)
                                         & " for maintenance");
+                  if The_Node.Bug > 0  then
+                     Bugzilla.Add_Comment (Bug_ID  => The_Node.Bug,
+                                        Comment => "Powered off " & Get_Name (The_Node)
+                                        & " for maintenance");
+                     Ada.Text_IO.Put_Line ("Added bugzilla comment");
+                  end if;
                else
                   Disable (The_Node);
                   Debug ("Could not (yet) power off " & Get_Name (The_Node)
@@ -58,6 +65,12 @@ package body Nodes is
                Verbose_Message ("Maintenance: disabling " & Get_Name (The_Node)
                                & " (poweroff pending)");
                Disable (The_Node);
+               if The_Node.Bug > 0  then
+                  Bugzilla.Add_Comment (Bug_ID  => The_Node.Bug,
+                                        Comment => "Disabling " & Get_Name (The_Node)
+                               & " (poweroff pending)");
+                  Verbose_Message ("Added bugzilla comment");
+               end if;
             elsif Online and Disabled then
                Debug ("Waiting for disabled " & Get_Name (The_Node)
                       & " to become idle");
