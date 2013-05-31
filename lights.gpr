@@ -1,10 +1,20 @@
 with "../florist/lib/gnat/florist";
+with "../lib/gnat/aws";
+with "../xml-rpc/xmlrpc";
 
 project Lights is
 
-   for Source_Dirs use ("src", "../../../lib/sl5/xmlada/include/xmlada", "../tools/pipes");
+   type Library_Kind is
+      ("relocatable", "static");
+   type Target_Type is
+      ("native", "vxworks");
+   type Ssl_Library_Kind is
+      ("relocatable", "static");
    for Object_Dir use "obj";
    for Main use ("lightsout.adb");
+   SSL_LIBRARY_TYPE : Ssl_Library_Kind := external ("SSL_LIBRARY_TYPE");
+   PLATFORM : Target_Type := external ("PLATFORM");
+   LIBRARY_TYPE : Library_Kind := external ("LIBRARY_TYPE");
 
    package Builder is
       for Default_Switches ("ada") use ("-j4");
@@ -13,6 +23,31 @@ project Lights is
    package Compiler is
       for Default_Switches ("ada") use ("-gnaty3aBcCehiklnOrsStx", "-gnatwa", "-O", "-gnato", "-g");
    end Compiler;
+
+   case SSL_LIBRARY_TYPE is
+
+      when "relocatable" =>
+
+         case PLATFORM is
+
+            when "native" =>
+
+               case LIBRARY_TYPE is
+
+                  when "relocatable" =>
+                     for Source_Dirs use ("src", "../../../lib/sl5/xmlada/include/xmlada", "../tools/pipes");
+
+                  when "static" =>
+                     for Source_Dirs use ("src", "../tools/pipes");
+               end case;
+
+            when "vxworks" =>
+               for Source_Dirs use ("src", "../../../lib/sl5/xmlada/include/xmlada", "../tools/pipes");
+         end case;
+
+      when "static" =>
+         for Source_Dirs use ("src", "../../../lib/sl5/xmlada/include/xmlada", "../tools/pipes");
+   end case;
 
 end Lights;
 
