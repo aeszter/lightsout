@@ -7,6 +7,7 @@ package Nodes is
    type Node is tagged record
       Name     : Unbounded_String;
       Maintain : Maintenance;
+      Bug      : Natural := 0;
    end record;
 
    function Get_Name (What : Node) return String;

@@ -5,7 +5,6 @@ with Ada.Exceptions; use Ada.Exceptions;
 with Ada.Command_Line; use Ada.Command_Line;
 with Utils; use Utils;
 with Statistics;
-with Bugzilla;
 
 
 procedure Lightsout is
@@ -16,7 +15,6 @@ procedure Lightsout is
 begin
    Put_Line ("Lightsout " & Utils.Version & " by aeszter@mpibpc.mpg.de");
    Utils.Check_Options;
-   Bugzilla.Test;
    Debug ("Debugging enabled");
    All_Nodes := Config.Read;
    if not Utils.Terminate_After_Config then

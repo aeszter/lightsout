@@ -48,6 +48,9 @@ package body Config is
                Group_Node  : Node;
                Name_Attr   : Attr;
                Maint_Attr  : Attr;
+               Bug_Attr    : Attr;
+               Bug_ID      : Natural;
+
             begin
                Name_Attr := Get_Named_Item (Attributes (One_Node), "name");
                New_Group.Group_Name := To_Unbounded_String (Value (Name_Attr));
@@ -63,12 +66,18 @@ package body Config is
                      New_Group.Max_Online := Integer'Value (Value (First_Child (Group_Node)));
                   elsif Name (Group_Node) = "nodename" then
                      Maint_Attr := Get_Named_Item (Attributes (Group_Node), "maint");
+                     Bug_Attr := Get_Named_Item (Attributes (Group_Node), "bug");
+                     if Bug_Attr = null then
+                        Bug_ID := 0;
+                     else
+                        Bug_ID := Integer'Value (Value (Bug_Attr));
+                     end if;
                      if Maint_Attr = null then
                         New_Group.Add_Host (Name => Value (First_Child (Group_Node)),
-                                         Mode => "none");
+                                         Mode => "none", Bug => Bug_ID);
                      else
                         New_Group.Add_Host (Name => Value (First_Child (Group_Node)),
-                                         Mode => Value (Maint_Attr));
+                                         Mode => Value (Maint_Attr), Bug => Bug_ID);
                      end if;
                   elsif Name (Group_Node) = "#text" or else
                     Name (Group_Node) = "#comment" then

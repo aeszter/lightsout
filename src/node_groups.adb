@@ -2,16 +2,21 @@ with Utils; use Utils;
 with Actions; use Actions;
 with Ada.Text_IO;
 with Ada.Exceptions; use Ada.Exceptions;
-with Nodes; use Nodes.Node_Lists;
 with Statistics;
 
 package body Node_Groups is
 
-   procedure Add_Host (Where : in out Group; Name : String; Mode : String) is
+   use Nodes.Node_Lists;
+
+   procedure Add_Host (Where : in out Group;
+                       Name  : String;
+                       Mode  : String;
+                       Bug   : Natural) is
       New_Node : Nodes.Node;
    begin
       New_Node.Name := To_Unbounded_String (Name);
       New_Node.Maintain := Maintenance'Value (Mode);
+      New_Node.Bug := Bug;
       Where.Hosts.Append (New_Node);
    exception
       when E : Constraint_Error =>
