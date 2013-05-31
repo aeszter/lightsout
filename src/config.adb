@@ -84,6 +84,12 @@ package body Config is
                   elsif Name (Group_Node) = "twin" then
                      PDU_Attr := Get_Named_Item (Attributes (Group_Node), "pdu");
                      Maint_Attr := Get_Named_Item (Attributes (Group_Node), "maint");
+                     Bug_Attr := Get_Named_Item (Attributes (Group_Node), "bug");
+                     if Bug_Attr = null then
+                        Bug_ID := 0;
+                     else
+                        Bug_ID := Integer'Value (Value (Bug_Attr));
+                     end if;
                      if PDU_Attr = null then
                         raise Config_Error with "Found <twin> without pdu attribute";
                      else
@@ -96,9 +102,13 @@ package body Config is
                         New_Twin.Add_Host (Value (First_Child (Sub_Node)));
                      end loop;
                      if Maint_Attr = null then
-                        New_Group.Add_Twin (New_Twin, Mode => "none");
+                        New_Group.Add_Twin (New_Twin,
+                                            Mode => "none",
+                                            Bug  => Bug_ID);
                      else
-                        New_Group.Add_Twin (New_Twin, Mode => Value (Maint_Attr));
+                        New_Group.Add_Twin (New_Twin,
+                                            Mode => Value (Maint_Attr),
+                                            Bug  => Bug_ID);
                      end if;
                   elsif Name (Group_Node) = "#text" or else
                     Name (Group_Node) = "#comment" then

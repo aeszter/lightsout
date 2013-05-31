@@ -18,7 +18,11 @@ package Node_Groups is
                        Name  : String;
                        Mode  : String;
                        Bug   : Natural);
-   procedure Add_Twin (Where : in out Group; What : Twin; Mode : String);
+   procedure Add_Twin (Where : in out Group;
+                       What  : Twin;
+                       Mode  : String;
+                       Bug   : Natural);
+
 
    package Lists is new Doubly_Linked_Lists (Element_Type => Group);
    subtype List is Lists.List;
