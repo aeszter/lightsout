@@ -14,7 +14,10 @@ package Node_Groups is
       end record;
 
    function Get_Name (What : Group) return String;
-   procedure Add_Host (Where : in out Group; Name : String; Mode : String);
+   procedure Add_Host (Where : in out Group;
+                       Name  : String;
+                       Mode  : String;
+                       Bug   : Natural);
    procedure Add_Twin (Where : in out Group; What : Twin; Mode : String);
 
    package Lists is new Doubly_Linked_Lists (Element_Type => Group);
