@@ -3,21 +3,20 @@ with Actions; use Actions;
 with Ada.Text_IO;
 with Ada.Exceptions; use Ada.Exceptions;
 with Statistics;
+with Hosts; use Hosts;
 
 package body Node_Groups is
-
-   use Nodes.Node_Lists;
 
    procedure Add_Host (Where : in out Group;
                        Name  : String;
                        Mode  : String;
                        Bug   : Natural) is
-      New_Node : Nodes.Node;
+      New_Host : Host;
    begin
-      New_Node.Name := To_Unbounded_String (Name);
-      New_Node.Maintain := Maintenance'Value (Mode);
-      New_Node.Bug := Bug;
-      Where.Hosts.Append (New_Node);
+      New_Host.Init (Name => Name,
+                     Maintain => Maintenance'Value (Mode),
+                     Bug => Bug);
+      Where.Hosts.Append (+New_Host);
    exception
       when E : Constraint_Error =>
          Ada.Text_IO.Put_Line ("Unable to add host """ & Name
@@ -25,6 +24,18 @@ package body Node_Groups is
                                & Mode & """");
          Ada.Text_IO.Put_Line (Exception_Message (E));
    end Add_Host;
+
+   procedure Add_Twin (Where : in out Group;
+                       What  : Twin;
+                       Mode  : String;
+                       Bug   : Natural) is
+      New_Node : Twin := What;
+   begin
+      New_Node.Set_Maintenance (Maintenance'Value (Mode));
+      New_Node.Set_Bug (Bug);
+      Where.Hosts.Append (+New_Node);
+   end Add_Twin;
+
 
    --------------
    -- Get_Name --
@@ -44,11 +55,11 @@ package body Node_Groups is
       Nodes_To_Switch_On : Natural := How_Many;
       Index    : Nodes.Cursor := Hosts.First;
    begin
-      while Index /= No_Element loop
+      while Index /= No_Node loop
          declare
-            The_Node : constant Node := Element (Index);
+            The_Node : constant Node_Safe_Pointer := Element (Index);
          begin
-            if The_Node.Maintain = none then
+            if not The_Node.In_Maintenance then
                if Nodes_To_Switch_On > 0 and then
                  not Is_Online (What => The_Node) then
                   Poweron (What => The_Node);
