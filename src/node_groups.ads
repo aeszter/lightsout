@@ -29,9 +29,9 @@ package Node_Groups is
    procedure Manage (What : Lists.Cursor);
 
 private
-   procedure Bring_Nodes_Online (How_Many : Integer; Hosts : Nodes.List);
+   procedure Bring_Nodes_Online (How_Many : Integer; Hosts : in out Nodes.List);
    -- switch on How_Many nodes from the Hosts list
-   procedure Put_Nodes_Offline (How_Many : Integer; Hosts : Nodes.List);
+   procedure Put_Nodes_Offline (How_Many : Integer; Hosts : in out Nodes.List);
    -- switch off How_Many nodes from the Hosts list
 
 end Node_Groups;

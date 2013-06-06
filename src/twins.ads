@@ -13,9 +13,15 @@ package Twins is
    procedure Set_PDU (Where : in out Twin; Str : String);
    procedure Add_Host (Where : in out Twin; Host : String);
 
+   overriding procedure Poweron (What : Twin);
+   overriding procedure Poweroff (What : Twin);
+   overriding procedure Enable (What : Twin);
+   overriding procedure Disable (What : Twin);
+
 private
    type Twin is new Node with record
       PDU : PDU_String;
       Sub_Nodes : Nodes.List;
    end record;
+
 end Twins;

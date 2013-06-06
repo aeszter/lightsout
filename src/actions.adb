@@ -146,28 +146,4 @@ package body Actions is
       Activate_Power_Switch (The_Node, "reset");
    end Powercycle;
 
-   ---------------------
-   -- Try_To_Poweroff --
-   ---------------------
-
-   procedure Try_To_Poweroff (The_Node : Nodes.Node; Succeeded : out Boolean) is
-   begin
-      Disable (What => The_Node);
-      if not Nodes.Is_Idle (What => The_Node) then
-         -- the scheduler has been faster
-         Enable (What => The_Node);
-         -- it is OK to enable The_Node without checking whether
-         -- it has been disabled by an admin:
-         -- if we are here, the node has been idle, but is no longer
-         -- therefore, it can only have been disabled after we checked
-         -- for Is_Idle. An admin is unlikely to have hit this short
-         -- interval.
-         Statistics.Race;
-         Succeeded := False;
-      else
-         Poweroff (What => The_Node);
-         Succeeded := True;
-      end if;
-   end Try_To_Poweroff;
-
 end Actions;
