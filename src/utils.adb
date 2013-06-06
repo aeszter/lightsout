@@ -57,6 +57,9 @@ package body Utils is
          elsif Argument (Arg) = "-v" or else
            Argument (Arg) = "--verbose" then
             Verbose := True;
+         elsif Argument (Arg) = "-s" or else
+           Argument (Arg) = "--statistics" then
+            Stats := True;
          elsif Argument (Arg) = "-h" or else
            Argument (Arg) = "--help" then
             Ada.Text_IO.Put_Line ("Options may be given in full or with a single hyphen "
@@ -68,6 +71,7 @@ package body Utils is
                                   & " implies --verbose");
             Ada.Text_IO.Put_Line ("--check-config only checks the config file, "
                                   & "then terminates the program");
+            Ada.Text_IO.Put_Line ("--statistics shows a summary of what has been done");
             Ada.Text_IO.Put_Line ("--help shows this message, then terminates");
             POSIX.Process_Primitives.Exit_Process;
          else
@@ -81,9 +85,9 @@ package body Utils is
    -------------
 
    function Dry_Run (Message         : String;
-                     Show_On_Verbose : Boolean := True) return Boolean is
+                     Show_Anyway : Boolean := True) return Boolean is
    begin
-      if not Action or else (Verbose and Show_On_Verbose) then
+      if not Action or else Show_Anyway then
          Ada.Text_IO.Put_Line (Message);
       end if;
       return not Action;
@@ -93,6 +97,12 @@ package body Utils is
    begin
       return Config_Only;
    end Terminate_After_Config;
+
+   function Stats_Enabled return Boolean is
+   begin
+      return Stats;
+   end Stats_Enabled;
+
 
    function Random return Float_Random.Uniformly_Distributed is
    begin
