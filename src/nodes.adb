@@ -1,6 +1,5 @@
 with Ada.Text_IO;
 with Ada.Strings.Fixed;
-with Actions; use Actions;
 with Parser;
 with Utils; use Utils;
 with Nodes;
@@ -14,6 +13,16 @@ package body Nodes is
 
    use Ada;
    use Node_Lists;
+
+   procedure Enable (What : Node_Safe_Pointer'Class) is
+   begin
+      Enable (-What);
+   end Enable;
+
+   procedure Disable (What : Node_Safe_Pointer'Class) is
+   begin
+      Disable (-What);
+   end Disable;
 
    ----------------
    -- Check_Node --
@@ -227,6 +236,11 @@ package body Nodes is
       Where.Bug := Bug_ID;
    end Set_Bug;
 
+   procedure Set_Name (Where : in out Node; Name : String) is
+   begin
+      Where.Name := To_Unbounded_String (Name);
+   end Set_Name;
+
    function In_Maintenance (What : Node) return Boolean is
    begin
       return What.Maintain /= none;
@@ -292,5 +306,19 @@ package body Nodes is
       Node_Lists.Append (Node_Lists.List (Where), Node_Safe_Pointer (What));
    end Append;
 
+   procedure Iterate (Over    : List;
+                      Process : not null access procedure (Element : Node_Safe_Pointer'Class)) is
+      Pos : Node_Lists.Cursor := Over.First;
+   begin
+      while Pos /= No_Element loop
+         Process (Element (Pos));
+         Next (Pos);
+      end loop;
+   end Iterate;
+
+   overriding procedure Clear (What : in out List) is
+   begin
+      Clear (Node_Lists.List (What));
+   end Clear;
 
 end Nodes;

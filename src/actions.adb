@@ -9,7 +9,9 @@ with Ada.Exceptions; use Ada.Exceptions;
 
 package body Actions is
 
-   procedure Activate_Power_Switch (The_Node : String; Command : String);
+   procedure Activate_Power_Switch (The_Node : String;
+                                    Command  : String;
+                                    Param    : String := "-n");
    procedure Disable_Or_Enable (The_Node : Nodes.Node; Enable : Boolean);
 
 
@@ -84,15 +86,20 @@ package body Actions is
    -- Activate_Power_Switch --
    ---------------------------
 
-   procedure Activate_Power_Switch (The_Node : String; Command : String) is
+   procedure Activate_Power_Switch (The_Node : String;
+                                    Command  : String;
+                                    Param    : String := "-n") is
       Args         : POSIX.POSIX_String_List;
+      cmsh_Command : constant String := "device power " & Param & " "
+                               & The_Node & " " & Command;
       Template     : Process_Template;
       PID          : Process_ID;
       Return_Value : Termination_Status;
+
    begin
       Append (Args, "cmsh");
       Append (Args, "-c");
-      Append (Args, To_POSIX_String ("device power -n " & The_Node & " " & Command));
+      Append (Args, To_POSIX_String (cmsh_Command));
       Open_Template (Template);
       Set_File_Action_To_Close (Template => Template,
                                 File     => POSIX.IO.Standard_Output);
@@ -109,9 +116,8 @@ package body Actions is
       end case;
    exception
       when E : POSIX_Error =>
-         raise Subcommand_Error with "cmsh raised error when called with ""device power -n "
-           & The_Node & " " & Command & """:" & Exception_Message (E);
-
+         raise Subcommand_Error with "cmsh raised error when called with """
+           & cmsh_Command & """:" & Exception_Message (E);
    end Activate_Power_Switch;
 
    procedure Poweron (What : Nodes.Node) is
@@ -134,6 +140,16 @@ package body Actions is
       end if;
       Debug ("switching off " & The_Node);
       Activate_Power_Switch (The_Node, "off");
+   end Poweroff;
+
+   procedure Poweron (PDU : Twins.PDU_String) is
+   begin
+      Activate_Power_Switch (Twins.PDU_Strings.To_String (PDU), "on", "-p");
+   end Poweron;
+
+   procedure Poweroff (PDU : Twins.PDU_String) is
+   begin
+      Activate_Power_Switch (Twins.PDU_Strings.To_String (PDU), "off", "-p");
    end Poweroff;
 
    procedure Powercycle (What : Nodes.Node) is

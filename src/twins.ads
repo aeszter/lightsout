@@ -5,7 +5,7 @@ use Nodes;
 package Twins is
    package PDU_Strings is
      new Ada.Strings.Bounded.Generic_Bounded_Length (Max => 10);
-   type PDU_String is new PDU_Strings.Bounded_String;
+   subtype PDU_String is PDU_Strings.Bounded_String;
 
    type Twin is new Node with private;
 

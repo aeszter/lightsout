@@ -1,3 +1,6 @@
+with Actions;
+with Hosts;
+
 package body Twins is
 
    ----------
@@ -6,9 +9,8 @@ package body Twins is
 
    procedure Init (What : in out Twin) is
    begin
-      --  Generated stub: replace with real body!
-      pragma Compile_Time_Warning (Standard.True, "Init unimplemented");
-      raise Program_Error;
+      What.Sub_Nodes.Clear;
+      What.PDU := PDU_Strings.To_Bounded_String ("undefined");
    end Init;
 
    -------------
@@ -17,9 +19,7 @@ package body Twins is
 
    procedure Set_PDU (Where : in out Twin; Str : String) is
    begin
-      --  Generated stub: replace with real body!
-      pragma Compile_Time_Warning (Standard.True, "Set_PDU unimplemented");
-      raise Program_Error;
+      Where.PDU := PDU_Strings.To_Bounded_String (Str);
    end Set_PDU;
 
    --------------
@@ -27,34 +27,32 @@ package body Twins is
    --------------
 
    procedure Add_Host (Where : in out Twin; Host : String) is
+      Sub_Node : Hosts.Host;
    begin
-      --  Generated stub: replace with real body!
-      pragma Compile_Time_Warning (Standard.True, "Add_Host unimplemented");
-      raise Program_Error;
+      Sub_Node.Init (Name     => Host,
+                     Maintain => none,
+                     Bug      => 0);
+      Where.Sub_Nodes.Append (+Sub_Node);
    end Add_Host;
 
    overriding procedure Poweron (What : Twin) is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Poweron unimplemented");
-      raise Program_Error;
+      Actions.Poweron (What.PDU);
    end Poweron;
 
    overriding procedure Poweroff (What : Twin) is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Poweroff unimplemented");
-      raise Program_Error;
+      Actions.Poweroff (What.PDU);
    end Poweroff;
 
    overriding procedure Enable (What : Twin) is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Enable unimplemented");
-      raise Program_Error;
+      What.Sub_Nodes.Iterate (Nodes.Enable'Access);
    end Enable;
 
    overriding procedure Disable (What : Twin) is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Disable unimplemented");
-      raise Program_Error;
+      What.Sub_Nodes.Iterate (Nodes.Disable'Access);
    end Disable;
 
 end Twins;

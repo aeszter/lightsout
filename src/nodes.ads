@@ -17,6 +17,7 @@ package Nodes is
    --------------
 
    function Get_Name (What : Node) return String;
+   procedure Set_Name (Where : in out Node; Name : String);
    procedure Set_Maintenance (Where : in out Node'Class; Maint : Maintenance);
    procedure Set_Bug (Where : in out Node'Class; Bug_ID : Natural);
    function In_Maintenance (What : Node) return Boolean;
@@ -49,6 +50,10 @@ package Nodes is
    procedure Poweroff (What : Node) is abstract;
    procedure Enable (What : Node) is abstract;
    procedure Disable (What : Node) is abstract;
+
+   procedure Enable (What : Node_Safe_Pointer'Class);
+   procedure Disable (What : Node_Safe_Pointer'Class);
+
    procedure Try_To_Poweroff (The_Node : Node'Class; Succeeded : out Boolean);
    -- Given an online and idle node, disable it, check for idleness (again),
    -- then switch it off (if still idle), otherwise just enable it again
@@ -67,6 +72,9 @@ package Nodes is
    function Current (From : List) return Node_Safe_Pointer'Class;
    function At_End (What : List) return Boolean;
    procedure Append (Where : in out List; What : Node_Safe_Pointer'Class);
+   procedure Iterate (Over    : List;
+                      Process : not null access procedure (Element : Node_Safe_Pointer'Class));
+   procedure Clear (What : in out List);
 
 private
    type Node is abstract tagged record

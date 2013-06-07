@@ -73,14 +73,14 @@ package body Node_Groups is
                   return;
                end if;
             else -- Maintain /= none
-               Debug ("Not considering switching on" & Get_Name (-The_Node) &
-                      "because of maintenance """ & Get_Maintenance (-The_Node) & """");
+               Debug ("Not considering switching on " & Get_Name (-The_Node) &
+                      " because of maintenance """ & Get_Maintenance (-The_Node) & """");
             end if;
             Hosts.Next_Node;
          end;
       end loop;
       if Nodes_To_Switch_On > 0 then
-         Debug ("Not switching on" & Nodes_To_Switch_On'Img
+         Debug ("Not switching on " & Nodes_To_Switch_On'Img
                 & " more nodes because none left");
          Statistics.Too_Few_Nodes (Number => Nodes_To_Switch_On);
       end if;

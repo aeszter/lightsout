@@ -1,3 +1,5 @@
+with Actions;
+
 package body Hosts is
 
    ----------
@@ -11,33 +13,29 @@ package body Hosts is
       Bug      : Natural)
    is
    begin
-      --  Generated stub: replace with real body!
-      pragma Compile_Time_Warning (Standard.True, "Init unimplemented");
-      raise Program_Error;
+      Node (What).Set_Name (Name);
+      Node (What).Set_Maintenance (Maintain);
+      Node (What).Set_Bug (Bug);
    end Init;
 
    overriding procedure Poweron (What : Host) is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Poweron unimplemented");
-      raise Program_Error;
+      Actions.Poweron (Node (What));
    end Poweron;
 
    overriding procedure Poweroff (What : Host) is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Poweroff unimplemented");
-      raise Program_Error;
+      Actions.Poweroff (Node (What));
    end Poweroff;
 
    overriding procedure Enable (What : Host) is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Enable unimplemented");
-      raise Program_Error;
+      Actions.Enable (Node (What));
    end Enable;
 
    overriding procedure Disable (What : Host) is
    begin
-      pragma Compile_Time_Warning (Standard.True, "Enable unimplemented");
-      raise Program_Error;
+      Actions.Disable (Node (What));
    end Disable;
 
 end Hosts;
