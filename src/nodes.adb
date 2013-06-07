@@ -13,6 +13,7 @@ with Statistics;
 package body Nodes is
 
    use Ada;
+   use Node_Lists;
 
    ----------------
    -- Check_Node --
@@ -20,7 +21,7 @@ package body Nodes is
 
    procedure Check_Node (What       : Node_Safe_Pointer;
                          Idle_Count : in out Integer) is
-      The_Node : constant Node := Element (What);
+      The_Node : constant Node'Class := -What;
       Success  : Boolean;
       Disabled, Online, Idle : Boolean;
    begin
@@ -192,7 +193,7 @@ package body Nodes is
    -- Handle_Disabled_Node --
    --------------------------
 
-   procedure Handle_Disabled_Node (The_Node : Node) is
+   procedure Handle_Disabled_Node (The_Node : Node'Class) is
    begin
       if Utils.Random > 0.1 then
          return;
@@ -241,7 +242,7 @@ package body Nodes is
    -- Try_To_Poweroff --
    ---------------------
 
-   procedure Try_To_Poweroff (The_Node : Node; Succeeded : out Boolean) is
+   procedure Try_To_Poweroff (The_Node : Node'Class; Succeeded : out Boolean) is
    begin
       Disable (What => The_Node);
       if not Nodes.Is_Idle (What => The_Node) then
@@ -263,7 +264,7 @@ package body Nodes is
 
    overriding function Is_Empty (What : List) return Boolean is
    begin
-      return Containers.Doubly_Linked_Lists.Is_Empty (What);
+      return Is_Empty (Node_Lists.List (What));
    end Is_Empty;
 
    procedure Rewind (What : in out List) is

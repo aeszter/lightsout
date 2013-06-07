@@ -41,7 +41,7 @@ package Nodes is
    procedure Check_Node (What       : Node_Safe_Pointer;
                          Idle_Count : in out Integer);
 
-   procedure Handle_Disabled_Node (The_Node : Node);
+   procedure Handle_Disabled_Node (The_Node : Node'Class);
    -- call only for nodes that are disabled for unknown reasons (i.e. not by
    -- us during this run, nor in maintenance)
 
@@ -49,7 +49,7 @@ package Nodes is
    procedure Poweroff (What : Node) is abstract;
    procedure Enable (What : Node) is abstract;
    procedure Disable (What : Node) is abstract;
-   procedure Try_To_Poweroff (The_Node : Node; Succeeded : out Boolean);
+   procedure Try_To_Poweroff (The_Node : Node'Class; Succeeded : out Boolean);
    -- Given an online and idle node, disable it, check for idleness (again),
    -- then switch it off (if still idle), otherwise just enable it again
    -- and notify caller of failure
