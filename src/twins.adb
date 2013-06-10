@@ -55,4 +55,35 @@ package body Twins is
       What.Sub_Nodes.Iterate (Nodes.Disable'Access);
    end Disable;
 
+   overriding procedure Query_Node (What     : Twin;
+                                    Disabled, Online,
+                                    Idle     : out Boolean) is
+      D, O, I : Natural;
+   begin
+      if What.Sub_Nodes.Length = 0 then
+         raise Twin_Error with "Query_Nodes found no sub-nodes";
+      end if;
+      -- use "unsafe" states here: the first sub_node that
+      -- disagrees will change the attribute to the safe state
+      What.Sub_Nodes.Query_Nodes (Disabled => D,
+                                  Online   => O,
+                                  Idle     => I);
+      if I = What.Sub_Nodes.Length then
+         Idle := True;
+      else
+         Idle := False;
+      end if;
+      if D = What.Sub_Nodes.Length then
+         Disabled := True;
+      else
+         Disabled := False;
+      end if;
+      if O > 0 then
+         Online := True; -- Boolean state does not fully represent the twin here
+                         -- but: if at least one sub_node is online, the PDU cannot be off
+      else
+         Online := False;
+      end if;
+   end Query_Node;
+
 end Twins;

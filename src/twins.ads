@@ -3,6 +3,9 @@ with Nodes;
 use Nodes;
 
 package Twins is
+
+   Twin_Error : exception;
+
    package PDU_Strings is
      new Ada.Strings.Bounded.Generic_Bounded_Length (Max => 10);
    subtype PDU_String is PDU_Strings.Bounded_String;
@@ -17,6 +20,10 @@ package Twins is
    overriding procedure Poweroff (What : Twin);
    overriding procedure Enable (What : Twin);
    overriding procedure Disable (What : Twin);
+
+   overriding procedure Query_Node (What     : Twin;
+                                    Disabled, Online,
+                                    Idle     : out Boolean);
 
 private
    type Twin is new Node with record

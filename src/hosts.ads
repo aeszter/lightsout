@@ -13,6 +13,11 @@ package Hosts is
    overriding procedure Enable (What : Host);
    overriding procedure Disable (What : Host);
 
+   overriding procedure Query_Node (What     : Host;
+                                    Disabled,
+                                    Online,
+                                    Idle     : out Boolean);
+
 private
    type Host is new Node with null record;
 end Hosts;

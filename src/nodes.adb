@@ -1,11 +1,6 @@
 with Ada.Text_IO;
-with Ada.Strings.Fixed;
-with Parser;
 with Utils; use Utils;
 with Nodes;
-with DOM.Core.Nodes;
-with DOM.Core.Attrs;
-with Ada.Exceptions; use Ada.Exceptions;
 with Bugzilla;
 with Statistics;
 
@@ -23,6 +18,32 @@ package body Nodes is
    begin
       Disable (-What);
    end Disable;
+
+   procedure Query_Nodes (From : List; Disabled, Online, Idle : out Natural) is
+      Pos : Node_Lists.Cursor := From.First;
+      I, O, D : Boolean;
+   begin
+      Idle := 0;
+      Online := 0;
+      Disabled := 0;
+      while Pos /= No_Element loop
+         Query_Node (What     => -Element (Pos),
+                     Disabled => D,
+                     Online   => O,
+                     Idle     => I);
+         if D then
+            Disabled := Disabled + 1;
+         end if;
+         if O then
+            Online := Online + 1;
+         end if;
+         if I then
+            Idle := Idle + 1;
+         end if;
+
+         Next (Pos);
+      end loop;
+   end Query_Nodes;
 
    ----------------
    -- Check_Node --
@@ -96,66 +117,11 @@ package body Nodes is
       end case;
    end Check_Node;
 
-   ----------------
-   -- Query_Node --
-   ----------------
-
-   procedure Query_Node (What : Node; Disabled, Online, Idle : out Boolean) is
-      SGE_Out : Parser.Tree;
-      Nodes   : DOM.Core.Node_List;
-      State_Node : DOM.Core.Node;
-      Slots_Node : DOM.Core.Node;
-      Count : Natural;
-   begin
-      SGE_Out := Parser.Setup (Selector => "-f -q \*@" & Get_Name (What));
-      Nodes := Parser.Get_Elements_By_Tag_Name (SGE_Out, "state");
-      Disabled := False;
-      Online := True;
-      for I in 0 .. DOM.Core.Nodes.Length (Nodes) - 1 loop
-         State_Node := DOM.Core.Nodes.Item (Nodes, I);
-         if Ada.Strings.Fixed.Count (Source => DOM.Core.Attrs.Value (DOM.Core.Nodes.First_Child (State_Node)),
-           Pattern => "d") > 0 then
-            Disabled := True;
-         end if;
-         if Ada.Strings.Fixed.Count (Source => DOM.Core.Attrs.Value (DOM.Core.Nodes.First_Child (State_Node)),
-           Pattern => "u") > 0 then
-            Online := False;
-         end if;
-      end loop;
-
-      Idle := True;
-      -- extract slots_used and slots_resv
-      Nodes := Parser.Get_Elements_By_Tag_Name (SGE_Out, "slots_used");
-      -- if any of these is >0, return false
-      for I in 0 .. DOM.Core.Nodes.Length (Nodes) - 1 loop
-         Slots_Node := DOM.Core.Nodes.Item (Nodes, I);
-         Count := Integer'Value (DOM.Core.Attrs.Value (DOM.Core.Nodes.First_Child (Slots_Node)));
-         if Count > 0 then
-            Idle := False;
-         end if;
-      end loop;
-
-      Nodes := Parser.Get_Elements_By_Tag_Name (SGE_Out, "slots_resv");
-      -- if any of these is >0, return false
-      for I in 0 .. DOM.Core.Nodes.Length (Nodes) - 1 loop
-         Slots_Node := DOM.Core.Nodes.Item (Nodes, I);
-         Count := Integer'Value (DOM.Core.Attrs.Value (DOM.Core.Nodes.First_Child (Slots_Node)));
-         if Count > 0 then
-            Idle := False;
-         end if;
-      end loop;
-   exception
-      when E : others =>
-         Ada.Text_IO.Put_Line ("Failed to query node " & Get_Name (What) & ": "
-                               & Exception_Message (E));
-         Idle := False; -- This is a safe state, since busy nodes will not be shut off
-   end Query_Node;
-
    ------------------------
    -- Is_Online_And_Idle --
    ------------------------
 
-   function Is_Online_And_Idle (What : Node) return Boolean is
+   function Is_Online_And_Idle (What : Node'Class) return Boolean is
       Online, Idle, Disabled : Boolean;
    begin
       Query_Node (What     => What,
@@ -169,7 +135,7 @@ package body Nodes is
    -- Is_Online --
    ---------------
 
-   function Is_Online (What : Node) return Boolean is
+   function Is_Online (What : Node'Class) return Boolean is
       Online, Idle, Disabled : Boolean;
    begin
       Query_Node (What => What,
@@ -183,7 +149,7 @@ package body Nodes is
    -- Is_Idle --
    -------------
 
-   function Is_Idle (What : Node) return Boolean is
+   function Is_Idle (What : Node'Class) return Boolean is
       Online, Idle, Disabled : Boolean;
    begin
       Query_Node (What => What,
@@ -320,5 +286,10 @@ package body Nodes is
    begin
       Clear (Node_Lists.List (What));
    end Clear;
+
+   function Length (From : List) return Natural is
+   begin
+      return Natural (Length (Node_Lists.List (From)));
+   end Length;
 
 end Nodes;

@@ -28,10 +28,10 @@ package Nodes is
    -- Check --
    -----------
 
-   procedure Query_Node (What : Node; Disabled, Online, Idle : out Boolean);
-   function Is_Online_And_Idle (What : Node) return Boolean;
-   function Is_Idle (What : Node) return Boolean;
-   function Is_Online (What : Node) return Boolean;
+   procedure Query_Node (What : Node; Disabled, Online, Idle : out Boolean) is abstract;
+   function Is_Online_And_Idle (What : Node'Class) return Boolean;
+   function Is_Idle (What : Node'Class) return Boolean;
+   function Is_Online (What : Node'Class) return Boolean;
 
 
 
@@ -74,7 +74,9 @@ package Nodes is
    procedure Append (Where : in out List; What : Node_Safe_Pointer'Class);
    procedure Iterate (Over    : List;
                       Process : not null access procedure (Element : Node_Safe_Pointer'Class));
+   procedure Query_Nodes (From : List; Disabled, Online, Idle : out Natural);
    procedure Clear (What : in out List);
+   function Length (From : List) return natural;
 
 private
    type Node is abstract tagged record
@@ -87,8 +89,7 @@ private
       N : Node_Access;
    end record;
 
-   package Node_Lists is new Ada.Containers.Doubly_Linked_Lists (
-                                                                 Element_Type => Node_Safe_Pointer);
+   package Node_Lists is new Ada.Containers.Doubly_Linked_Lists (Element_Type => Node_Safe_Pointer);
 
    type List is new Node_Lists.List with record
       Current : Node_Lists.Cursor := Node_Lists.No_Element;
