@@ -99,7 +99,7 @@ package body Config is
                      Twin_Nodes := Child_Nodes (Group_Node);
                      for J in 0 .. Length (Twin_Nodes) - 1 loop
                         Sub_Node := Item (Twin_Nodes, J);
-                        if Value (Sub_Node) = "nodename" then
+                        if Name (Sub_Node) = "nodename" then
                            New_Twin.Add_Host (Value (First_Child (Sub_Node)));
                         end if;
                      end loop;
