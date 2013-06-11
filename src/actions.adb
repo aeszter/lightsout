@@ -97,6 +97,7 @@ package body Actions is
       Return_Value : Termination_Status;
 
    begin
+      Debug (cmsh_Command);
       Append (Args, "cmsh");
       Append (Args, "-c");
       Append (Args, To_POSIX_String (cmsh_Command));
@@ -127,7 +128,6 @@ package body Actions is
       if Utils.Dry_Run ("switching on " & The_Node) then
          return;
       end if;
-      Debug ("switching on " & The_Node);
       Activate_Power_Switch (The_Node, "on");
    end Poweron;
 
@@ -138,7 +138,6 @@ package body Actions is
       if Utils.Dry_Run ("switching off " & The_Node) then
          return;
       end if;
-      Debug ("switching off " & The_Node);
       Activate_Power_Switch (The_Node, "off");
    end Poweroff;
 
@@ -158,7 +157,6 @@ package body Actions is
       if Utils.Dry_Run ("powercycling " & The_Node) then
          return;
       end if;
-      Debug ("powercycling " & The_Node);
       Activate_Power_Switch (The_Node, "reset");
    end Powercycle;
 
