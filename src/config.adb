@@ -85,6 +85,7 @@ package body Config is
                      PDU_Attr := Get_Named_Item (Attributes (Group_Node), "pdu");
                      Maint_Attr := Get_Named_Item (Attributes (Group_Node), "maint");
                      Bug_Attr := Get_Named_Item (Attributes (Group_Node), "bug");
+                     Name_Attr := Get_Named_Item (Attributes (Group_Node), "name");
                      if Bug_Attr = null then
                         Bug_ID := 0;
                      else
@@ -95,6 +96,9 @@ package body Config is
                      else
                         New_Twin.Init;
                         New_Twin.Set_PDU (Value (PDU_Attr));
+                     end if;
+                     if Name_Attr /= null then
+                        New_Twin.Set_Name (Value (Name_Attr));
                      end if;
                      Twin_Nodes := Child_Nodes (Group_Node);
                      for J in 0 .. Length (Twin_Nodes) - 1 loop
