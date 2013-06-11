@@ -9,7 +9,9 @@ with Ada.Exceptions; use Ada.Exceptions;
 
 package body Actions is
 
-   procedure Activate_Power_Switch (The_Node : String; Command : String);
+   procedure Activate_Power_Switch (The_Node : String;
+                                    Command  : String;
+                                    Param    : String := "-n");
    procedure Disable_Or_Enable (The_Node : Nodes.Node; Enable : Boolean);
 
 
@@ -84,15 +86,21 @@ package body Actions is
    -- Activate_Power_Switch --
    ---------------------------
 
-   procedure Activate_Power_Switch (The_Node : String; Command : String) is
+   procedure Activate_Power_Switch (The_Node : String;
+                                    Command  : String;
+                                    Param    : String := "-n") is
       Args         : POSIX.POSIX_String_List;
+      cmsh_Command : constant String := "device power " & Param & " "
+                               & The_Node & " " & Command;
       Template     : Process_Template;
       PID          : Process_ID;
       Return_Value : Termination_Status;
+
    begin
+      Debug (cmsh_Command);
       Append (Args, "cmsh");
       Append (Args, "-c");
-      Append (Args, To_POSIX_String ("device power -n " & The_Node & " " & Command));
+      Append (Args, To_POSIX_String (cmsh_Command));
       Open_Template (Template);
       Set_File_Action_To_Close (Template => Template,
                                 File     => POSIX.IO.Standard_Output);
@@ -109,9 +117,8 @@ package body Actions is
       end case;
    exception
       when E : POSIX_Error =>
-         raise Subcommand_Error with "cmsh raised error when called with ""device power -n "
-           & The_Node & " " & Command & """:" & Exception_Message (E);
-
+         raise Subcommand_Error with "cmsh raised error when called with """
+           & cmsh_Command & """:" & Exception_Message (E);
    end Activate_Power_Switch;
 
    procedure Poweron (What : Nodes.Node) is
@@ -121,7 +128,6 @@ package body Actions is
       if Utils.Dry_Run ("switching on " & The_Node) then
          return;
       end if;
-      Debug ("switching on " & The_Node);
       Activate_Power_Switch (The_Node, "on");
    end Poweron;
 
@@ -132,8 +138,23 @@ package body Actions is
       if Utils.Dry_Run ("switching off " & The_Node) then
          return;
       end if;
-      Debug ("switching off " & The_Node);
       Activate_Power_Switch (The_Node, "off");
+   end Poweroff;
+
+   procedure Poweron (PDU : Twins.PDU_String) is
+   begin
+      if Utils.Dry_Run ("switching on PDU " & PDU) then
+         return;
+      end if;
+      Activate_Power_Switch (Twins.PDU_Strings.To_String (PDU), "on", "-p");
+   end Poweron;
+
+   procedure Poweroff (PDU : Twins.PDU_String) is
+   begin
+      if Utils.Dry_Run ("switching off PDU " & PDU) then
+         return;
+      end if;
+      Activate_Power_Switch (Twins.PDU_Strings.To_String (PDU), "off", "-p");
    end Poweroff;
 
    procedure Powercycle (What : Nodes.Node) is
@@ -142,32 +163,7 @@ package body Actions is
       if Utils.Dry_Run ("powercycling " & The_Node) then
          return;
       end if;
-      Debug ("powercycling " & The_Node);
       Activate_Power_Switch (The_Node, "reset");
    end Powercycle;
-
-   ---------------------
-   -- Try_To_Poweroff --
-   ---------------------
-
-   procedure Try_To_Poweroff (The_Node : Nodes.Node; Succeeded : out Boolean) is
-   begin
-      Disable (What => The_Node);
-      if not Nodes.Is_Idle (What => The_Node) then
-         -- the scheduler has been faster
-         Enable (What => The_Node);
-         -- it is OK to enable The_Node without checking whether
-         -- it has been disabled by an admin:
-         -- if we are here, the node has been idle, but is no longer
-         -- therefore, it can only have been disabled after we checked
-         -- for Is_Idle. An admin is unlikely to have hit this short
-         -- interval.
-         Statistics.Race;
-         Succeeded := False;
-      else
-         Poweroff (What => The_Node);
-         Succeeded := True;
-      end if;
-   end Try_To_Poweroff;
 
 end Actions;
