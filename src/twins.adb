@@ -1,5 +1,6 @@
 with Actions;
 with Hosts;
+with Utils;
 
 package body Twins is
 
@@ -33,6 +34,7 @@ package body Twins is
                      Maintain => none,
                      Bug      => 0);
       Where.Sub_Nodes.Append (+Sub_Node);
+      Utils.Debug ("Added """ & Host & """ to """ & Where.Get_Name & """");
    end Add_Host;
 
    overriding procedure Poweron (What : Twin) is
@@ -79,11 +81,15 @@ package body Twins is
          Disabled := False;
       end if;
       if O > 0 then
-         Online := True; -- Boolean state does not fully represent the twin here
-                         -- but: if at least one sub_node is online, the PDU cannot be off
+         Online := True;
+         -- Boolean state does not fully represent the twin here
+         -- but: if at least one sub_node is online, the PDU cannot be off
       else
          Online := False;
       end if;
+      Utils.Debug ("Twin " & What.Get_Name & " has D =>" & D'Img
+                   & Disabled'Img & ", O =>" & O'Img & Online'Img &
+                   ", I =>" & I'Img & Idle'Img);
    end Query_Node;
 
 end Twins;
