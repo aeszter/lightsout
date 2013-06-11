@@ -13,13 +13,15 @@ procedure Lightsout is
 
    All_Nodes : Node_Groups.List;
 begin
-   Put_Line ("Lightsout " & Utils.Version & " by aeszter@mpibpc.mpg.de");
+   Utils.Verbose_Message ("Lightsout " & Utils.Version & " by aeszter@mpibpc.mpg.de");
    Utils.Check_Options;
    Debug ("Debugging enabled");
    All_Nodes := Config.Read;
    if not Utils.Terminate_After_Config then
       All_Nodes.Iterate (Node_Groups.Manage'Access);
-      Statistics.Print;
+      if Utils.Stats_Enabled then
+         Statistics.Print;
+      end if;
    end if;
 exception
    when E : Config.Config_Error =>

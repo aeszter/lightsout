@@ -26,12 +26,12 @@ package body Actions is
    begin
       if Enable then
          if Utils.Dry_Run (Message => "enabling " & Node_Name,
-                       Show_On_Verbose => False) then
+                       Show_Anyway => False) then
             return;
          end if;
       else
          if Utils.Dry_Run (Message => "disabling " & Node_Name,
-                       Show_On_Verbose => False) then
+                       Show_Anyway => False) then
             return;
          end if;
       end if;

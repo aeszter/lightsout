@@ -4,7 +4,7 @@ use Ada.Strings.Unbounded;
 with Ada.Numerics.Float_Random;
 
 package Utils is
-   Version : String := "v1.1";
+   Version : String := "v1.1.1";
 
    package String_Lists is new Doubly_Linked_Lists (Element_Type => Unbounded_String);
    subtype String_List is String_Lists.List;
@@ -14,12 +14,13 @@ package Utils is
    procedure Enable_Debug;
    procedure Check_Options;
    function Dry_Run (Message         : String;
-                     Show_On_Verbose : Boolean := True) return Boolean;
+                     Show_Anyway : Boolean := True) return Boolean;
    -- return whether Action is false
    -- if so, print Message
    -- also, print Message if both Verbose and Show_On_Verbose are true
 
    function Terminate_After_Config return Boolean;
+   function Stats_Enabled return Boolean;
 
    function Random return Ada.Numerics.Float_Random.Uniformly_Distributed;
    procedure Init_Random;
@@ -28,5 +29,6 @@ private
    Action        : Boolean := True;
    Config_Only   : Boolean := False;
    Verbose       : Boolean := False;
+   Stats         : Boolean := False;
    Random_Generator : Ada.Numerics.Float_Random.Generator;
 end Utils;
