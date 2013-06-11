@@ -142,16 +142,18 @@ package body Actions is
    end Poweroff;
 
    procedure Poweron (PDU : Twins.PDU_String) is
+      use type Twins.PDU_String;
    begin
-      if Utils.Dry_Run ("switching on PDU " & PDU) then
+      if Utils.Dry_Run ("switching on PDU " & Twins.PDU_Strings.To_String (PDU)) then
          return;
       end if;
       Activate_Power_Switch (Twins.PDU_Strings.To_String (PDU), "on", "-p");
    end Poweron;
 
    procedure Poweroff (PDU : Twins.PDU_String) is
+      use type Twins.PDU_String;
    begin
-      if Utils.Dry_Run ("switching off PDU " & PDU) then
+      if Utils.Dry_Run ("switching off PDU " & Twins.PDU_Strings.To_String (PDU)) then
          return;
       end if;
       Activate_Power_Switch (Twins.PDU_Strings.To_String (PDU), "off", "-p");
