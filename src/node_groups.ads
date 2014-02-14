@@ -1,5 +1,6 @@
 with Ada.Containers.Doubly_Linked_Lists; use Ada.Containers;
 with Nodes; use Nodes;
+with Twins; use Twins;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 
 package Node_Groups is
@@ -17,15 +18,20 @@ package Node_Groups is
                        Name  : String;
                        Mode  : String;
                        Bug   : Natural);
+   procedure Add_Twin (Where : in out Group;
+                       What  : Twin;
+                       Mode  : String;
+                       Bug   : Natural);
+
 
    package Lists is new Doubly_Linked_Lists (Element_Type => Group);
    subtype List is Lists.List;
    procedure Manage (What : Lists.Cursor);
 
 private
-   procedure Bring_Nodes_Online (How_Many : Integer; Hosts : Nodes.List);
+   procedure Bring_Nodes_Online (How_Many : Integer; Hosts : in out Nodes.List);
    -- switch on How_Many nodes from the Hosts list
-   procedure Put_Nodes_Offline (How_Many : Integer; Hosts : Nodes.List);
+   procedure Put_Nodes_Offline (How_Many : Integer; Hosts : in out Nodes.List);
    -- switch off How_Many nodes from the Hosts list
 
 end Node_Groups;

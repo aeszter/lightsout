@@ -8,6 +8,7 @@ with Input_Sources.File; use Input_Sources.File;
 with Ada.Strings.Unbounded; use Ada.Strings.Unbounded;
 with Ada.Text_IO; use Ada.Text_IO;
 with Ada.Exceptions; use Ada.Exceptions;
+with Twins;
 
 package body Config is
 
@@ -43,14 +44,15 @@ package body Config is
          One_Node := Item (All_Nodes, I);
          if Node_Name (One_Node) = "nodegroup" then
             declare
-               New_Group   : Node_Groups.Group;
-               Group_Nodes : Node_List;
-               Group_Node  : Node;
-               Name_Attr   : Attr;
-               Maint_Attr  : Attr;
-               Bug_Attr    : Attr;
-               Bug_ID      : Natural;
-
+               New_Group               : Node_Groups.Group;
+               Group_Nodes, Twin_Nodes : Node_List;
+               Group_Node, Sub_Node    : Node;
+               Name_Attr               : Attr;
+               Maint_Attr              : Attr;
+               Bug_Attr                : Attr;
+               Bug_ID                  : Natural;
+               PDU_Attr                : Attr;
+               New_Twin                : Twins.Twin;
             begin
                Name_Attr := Get_Named_Item (Attributes (One_Node), "name");
                New_Group.Group_Name := To_Unbounded_String (Value (Name_Attr));
@@ -78,6 +80,41 @@ package body Config is
                      else
                         New_Group.Add_Host (Name => Value (First_Child (Group_Node)),
                                          Mode => Value (Maint_Attr), Bug => Bug_ID);
+                     end if;
+                  elsif Name (Group_Node) = "twin" then
+                     PDU_Attr := Get_Named_Item (Attributes (Group_Node), "pdu");
+                     Maint_Attr := Get_Named_Item (Attributes (Group_Node), "maint");
+                     Bug_Attr := Get_Named_Item (Attributes (Group_Node), "bug");
+                     Name_Attr := Get_Named_Item (Attributes (Group_Node), "name");
+                     if Bug_Attr = null then
+                        Bug_ID := 0;
+                     else
+                        Bug_ID := Integer'Value (Value (Bug_Attr));
+                     end if;
+                     if PDU_Attr = null then
+                        raise Config_Error with "Found <twin> without pdu attribute";
+                     else
+                        New_Twin.Init;
+                        New_Twin.Set_PDU (Value (PDU_Attr));
+                     end if;
+                     if Name_Attr /= null then
+                        New_Twin.Set_Name (Value (Name_Attr));
+                     end if;
+                     Twin_Nodes := Child_Nodes (Group_Node);
+                     for J in 0 .. Length (Twin_Nodes) - 1 loop
+                        Sub_Node := Item (Twin_Nodes, J);
+                        if Name (Sub_Node) = "nodename" then
+                           New_Twin.Add_Host (Value (First_Child (Sub_Node)));
+                        end if;
+                     end loop;
+                     if Maint_Attr = null then
+                        New_Group.Add_Twin (New_Twin,
+                                            Mode => "none",
+                                            Bug  => Bug_ID);
+                     else
+                        New_Group.Add_Twin (New_Twin,
+                                            Mode => Value (Maint_Attr),
+                                            Bug  => Bug_ID);
                      end if;
                   elsif Name (Group_Node) = "#text" or else
                     Name (Group_Node) = "#comment" then
