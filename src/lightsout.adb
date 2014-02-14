@@ -13,8 +13,8 @@ procedure Lightsout is
 
    All_Nodes : Node_Groups.List;
 begin
-   Utils.Verbose_Message ("Lightsout " & Utils.Version & " by aeszter@mpibpc.mpg.de");
    Utils.Check_Options;
+   Utils.Verbose_Message ("Lightsout " & Utils.Version & " by aeszter@mpibpc.mpg.de");
    Debug ("Debugging enabled");
    All_Nodes := Config.Read;
    if not Utils.Terminate_After_Config then
