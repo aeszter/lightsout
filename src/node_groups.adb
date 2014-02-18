@@ -146,7 +146,10 @@ package body Node_Groups is
                 & " Nodes idle when" & The_Group.Max_Online'Img
                 & " is the maximum");
          Put_Nodes_Offline (How_Many => Idle_Counter - The_Group.Online_Target,
-                            Hosts => The_Group.Hosts);
+                            Hosts    => The_Group.Hosts);
+      else
+         Debug (The_Group.Get_Name & ":" & Idle_Counter'Img
+                & " Nodes idle.");
       end if;
    exception
       when E : Actions.Subcommand_Error =>
