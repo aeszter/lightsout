@@ -138,6 +138,8 @@ package body Config is
                             New_Group.Get_Name & """ ignored");
                end if;
             end;
+         elsif Node_Name (One_Node) = "bugzilla" then
+            Bugzilla_Address := To_Unbounded_String (Value (First_Child (One_Node)));
          elsif Node_Name (One_Node) = "#text" or else
            Node_Name (One_Node) = "#comment" then
             null; -- ignore
@@ -153,5 +155,11 @@ package body Config is
       when E : others =>
          raise Config_Error with "Unable to read config file: " & Exception_Message (E);
    end Read;
+
+   function Get_Bugzilla return String is
+   begin
+      return To_String (Bugzilla_Address);
+   end Get_Bugzilla;
+
 
 end Config;

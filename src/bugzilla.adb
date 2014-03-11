@@ -5,12 +5,13 @@ with XMLrpc.Parameters; use XMLrpc.Parameters;
 with XMLrpc.Types; use XMLrpc;
 use XMLrpc.Types;
 with Utils;
+with Config;
 
 package body Bugzilla is
 
-   ----------
-   -- Test --
-   ----------
+   -----------------
+   -- Add_Comment --
+   -----------------
 
    procedure Add_Comment (Bug_ID : Positive; Comment : String) is
       Set : constant Types.Object_Set := (
@@ -32,7 +33,7 @@ package body Bugzilla is
       end if;
       declare
          Response : constant XMLrpc.Message.Response.Object'Class
-             := XMLrpc.Client.Call ("http://ram.mpibpc.intern/bugzilla/xmlrpc.cgi", Payload);
+             := XMLrpc.Client.Call (Config.Get_Bugzilla & "/xmlrpc.cgi", Payload);
 
          Replied  : constant Parameters.List := XMLrpc.Message.Parameters (Response);
       begin
