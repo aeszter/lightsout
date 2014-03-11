@@ -77,6 +77,11 @@ package body Node_Groups is
                       " because of maintenance """ & Get_Maintenance (-The_Node) & """");
             end if;
             Hosts.Next_Node;
+         exception
+            when E : Actions.Subcommand_Error =>
+               Verbose_Message ("While switching on " & Get_Name (-The_Node) & ":");
+               Verbose_Message (Exception_Message (E));
+               Hosts.Next_Node;
          end;
       end loop;
       if Nodes_To_Switch_On > 0 then
@@ -115,6 +120,11 @@ package body Node_Groups is
                end if;
             end if;
             Hosts.Next_Node;
+         exception
+            when E : Actions.Subcommand_Error =>
+               Verbose_Message ("While switching off " & Get_Name (-The_Node) & ":");
+               Verbose_Message (Exception_Message (E));
+               Hosts.Next_Node;
          end;
       end loop;
    end Put_Nodes_Offline;
@@ -146,7 +156,10 @@ package body Node_Groups is
                 & " Nodes idle when" & The_Group.Max_Online'Img
                 & " is the maximum");
          Put_Nodes_Offline (How_Many => Idle_Counter - The_Group.Online_Target,
-                            Hosts => The_Group.Hosts);
+                            Hosts    => The_Group.Hosts);
+      else
+         Debug (The_Group.Get_Name & ":" & Idle_Counter'Img
+                & " Nodes idle.");
       end if;
    exception
       when E : Actions.Subcommand_Error =>
