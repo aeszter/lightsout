@@ -10,7 +10,8 @@ package body Node_Groups is
    procedure Add_Host (Where : in out Group;
                        Name  : String;
                        Mode  : String;
-                       Bug   : Natural) is
+                       Bug   : Natural;
+                       Sequence : Natural) is
       New_Host : Host;
    begin
       New_Host.Init (Name => Name,
@@ -105,7 +106,8 @@ package body Node_Groups is
          declare
             The_Node : constant Node_Safe_Pointer'Class := Current (Hosts);
          begin
-            if not In_Maintenance (-The_Node) then
+            if not In_Maintenance (-The_Node)
+               and then Has_Sequence (-The_Node) then
                if Nodes_To_Switch_Off > 0 and then
                  Is_Online_And_Idle (What => -The_Node) then
                   Try_To_Poweroff (The_Node => -The_Node, Succeeded => Success);
@@ -168,5 +170,14 @@ package body Node_Groups is
                                & The_Group.Get_Name);
    end Manage;
 
+   procedure Sort (What : List) is
+      use Lists;
+
+      Position : Lists.Cursor := What.First;
+   begin
+      while Position /= Lists.No_Element loop
+         What.Update_Element (Position, Sort'Access);
+      end loop;
+   end Sort;
 
 end Node_Groups;

@@ -22,6 +22,7 @@ package Nodes is
    procedure Set_Bug (Where : in out Node'Class; Bug_ID : Natural);
    function In_Maintenance (What : Node) return Boolean;
    function Get_Maintenance (What : Node) return String;
+   function Has_Sequence (What : Node'Class) return Boolean;
 
 
    -----------
@@ -83,6 +84,7 @@ private
       Name     : Unbounded_String;
       Maintain : Maintenance;
       Bug      : Natural := 0;
+      Sequence : Natural := 1;
    end record;
 
    type Node_Safe_Pointer is new Ada.Finalization.Controlled with record
