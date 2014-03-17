@@ -28,7 +28,7 @@ package Node_Groups is
    package Lists is new Doubly_Linked_Lists (Element_Type => Group);
    subtype List is Lists.List;
    procedure Manage (What : Lists.Cursor);
-   procedure Sort (What : List);
+   procedure Sort (What : in out List);
 
 private
    procedure Bring_Nodes_Online (How_Many : Integer; Hosts : in out Nodes.List);

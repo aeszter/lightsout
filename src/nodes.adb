@@ -207,6 +207,11 @@ package body Nodes is
       Where.Name := To_Unbounded_String (Name);
    end Set_Name;
 
+   procedure Set_Sequence (Where : in out Node'Class; Sequence_No : Natural) is
+   begin
+      Where.Sequence := Sequence_No;
+   end Set_Sequence;
+
    function In_Maintenance (What : Node) return Boolean is
    begin
       return What.Maintain /= none;
@@ -217,6 +222,20 @@ package body Nodes is
       return What.Maintain'Img;
    end Get_Maintenance;
 
+   function Has_Active_Sequence (What : Node'Class) return Boolean is
+   begin
+      return What.Sequence > 0;
+   end Has_Active_Sequence;
+
+   function Get_Sequence (What : Node'Class) return Natural is
+   begin
+      return What.Sequence;
+   end Get_Sequence;
+
+   procedure Sort (What : in out List) is
+   begin
+      Sorting.Sort (Node_Lists.List (What));
+   end Sort;
 
    ---------------------
    -- Try_To_Poweroff --
@@ -291,5 +310,10 @@ package body Nodes is
    begin
       return Natural (Length (Node_Lists.List (From)));
    end Length;
+
+   function Precedes_By_Sequence (Left, Right : Node_Safe_Pointer) return Boolean is
+   begin
+      return Get_Sequence (-Left) < Get_Sequence (-Right);
+   end Precedes_By_Sequence;
 
 end Nodes;
