@@ -6,7 +6,8 @@ package Hosts is
    procedure Init (What     : out Host;
                    Name     : String;
                    Maintain : Maintenance;
-                   Bug      : Natural);
+                   Bug      : Natural;
+                   Sequence : Natural);
 
    overriding procedure Poweron (What : Host);
    overriding procedure Poweroff (What : Host);

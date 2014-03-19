@@ -20,8 +20,11 @@ package Nodes is
    procedure Set_Name (Where : in out Node; Name : String);
    procedure Set_Maintenance (Where : in out Node'Class; Maint : Maintenance);
    procedure Set_Bug (Where : in out Node'Class; Bug_ID : Natural);
+   procedure Set_Sequence (Where : in out Node'Class; Sequence_No : Natural);
    function In_Maintenance (What : Node) return Boolean;
    function Get_Maintenance (What : Node) return String;
+   function Has_Active_Sequence (What : Node'Class) return Boolean;
+   function Get_Sequence (What : Node'Class) return Natural;
 
 
    -----------
@@ -77,22 +80,30 @@ package Nodes is
    procedure Query_Nodes (From : List; Disabled, Online, Idle : out Natural);
    procedure Clear (What : in out List);
    function Length (From : List) return natural;
+   procedure Sort (What : in out List);
 
 private
    type Node is abstract tagged record
       Name     : Unbounded_String;
       Maintain : Maintenance;
       Bug      : Natural := 0;
+      Sequence : Natural := 1;
    end record;
 
    type Node_Safe_Pointer is new Ada.Finalization.Controlled with record
       N : Node_Access;
    end record;
 
-   package Node_Lists is new Ada.Containers.Doubly_Linked_Lists (Element_Type => Node_Safe_Pointer);
+   function Precedes_By_Sequence (Left, Right : Node_Safe_Pointer) return Boolean;
+
+   package Node_Lists is new Ada.Containers.Doubly_Linked_Lists
+     (Element_Type => Node_Safe_Pointer);
 
    type List is new Node_Lists.List with record
       Current : Node_Lists.Cursor := Node_Lists.No_Element;
    end record;
+
+   package Sorting is new Node_Lists.Generic_Sorting
+     ("<" => Precedes_By_Sequence);
 
 end Nodes;

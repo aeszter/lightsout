@@ -17,12 +17,14 @@ package body Hosts is
      (What     : out Host;
       Name     : String;
       Maintain : Maintenance;
-      Bug      : Natural)
+      Bug      : Natural;
+      Sequence : Natural)
    is
    begin
       Node (What).Set_Name (Name);
       Node (What).Set_Maintenance (Maintain);
       Node (What).Set_Bug (Bug);
+      Node (What).Set_Sequence (Sequence);
    end Init;
 
    overriding procedure Poweron (What : Host) is
