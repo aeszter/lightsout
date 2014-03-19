@@ -32,7 +32,8 @@ package body Twins is
    begin
       Sub_Node.Init (Name     => Host,
                      Maintain => none,
-                     Bug      => 0);
+                     Bug      => 0,
+                     Sequence => 1);
       Where.Sub_Nodes.Append (+Sub_Node);
       Utils.Debug ("Added """ & Host & """ to """ & Where.Get_Name & """");
    end Add_Host;

@@ -50,7 +50,8 @@ package body Config is
                Name_Attr               : Attr;
                Maint_Attr              : Attr;
                Bug_Attr                : Attr;
-               Bug_ID                  : Natural;
+               Seq_Attr                : Attr;
+               Bug_ID, Seq_No          : Natural;
                PDU_Attr                : Attr;
                New_Twin                : Twins.Twin;
             begin
@@ -74,12 +75,18 @@ package body Config is
                      else
                         Bug_ID := Integer'Value (Value (Bug_Attr));
                      end if;
+                     Seq_Attr := Get_Named_Item (Attributes (Group_Node), "seq_no");
+                     if Seq_Attr = null then
+                        Seq_No := 1;
+                     else
+                        Seq_No := Integer'Value (Value (Seq_Attr));
+                     end if;
                      if Maint_Attr = null then
                         New_Group.Add_Host (Name => Value (First_Child (Group_Node)),
-                                         Mode => "none", Bug => Bug_ID);
+                                         Mode => "none", Bug => Bug_ID, Sequence => Seq_No);
                      else
                         New_Group.Add_Host (Name => Value (First_Child (Group_Node)),
-                                         Mode => Value (Maint_Attr), Bug => Bug_ID);
+                                         Mode => Value (Maint_Attr), Bug => Bug_ID, Sequence => Seq_No);
                      end if;
                   elsif Name (Group_Node) = "twin" then
                      PDU_Attr := Get_Named_Item (Attributes (Group_Node), "pdu");
