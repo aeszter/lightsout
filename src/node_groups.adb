@@ -32,11 +32,13 @@ package body Node_Groups is
    procedure Add_Twin (Where : in out Group;
                        What  : Twin;
                        Mode  : String;
-                       Bug   : Natural) is
+                       Bug   : Natural;
+                       Sequence : Natural) is
       New_Node : Twin := What;
    begin
       New_Node.Set_Maintenance (Maintenance'Value (Mode));
       New_Node.Set_Bug (Bug);
+      New_Node.Set_Sequence (Sequence);
       Where.Hosts.Append (+New_Node);
    end Add_Twin;
 
