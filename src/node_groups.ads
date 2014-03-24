@@ -22,7 +22,8 @@ package Node_Groups is
    procedure Add_Twin (Where : in out Group;
                        What  : Twin;
                        Mode  : String;
-                       Bug   : Natural);
+                       Bug   : Natural;
+                       Sequence : Natural);
 
 
    package Lists is new Doubly_Linked_Lists (Element_Type => Group);

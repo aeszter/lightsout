@@ -98,6 +98,12 @@ package body Config is
                      else
                         Bug_ID := Integer'Value (Value (Bug_Attr));
                      end if;
+                     Seq_Attr := Get_Named_Item (Attributes (Group_Node), "seq_no");
+                     if Seq_Attr = null then
+                        Seq_No := 1;
+                     else
+                        Seq_No := Integer'Value (Value (Seq_Attr));
+                     end if;
                      if PDU_Attr = null then
                         raise Config_Error with "Found <twin> without pdu attribute";
                      else
@@ -117,11 +123,13 @@ package body Config is
                      if Maint_Attr = null then
                         New_Group.Add_Twin (New_Twin,
                                             Mode => "none",
-                                            Bug  => Bug_ID);
+                                            Bug  => Bug_ID,
+                                            Sequence => Seq_No);
                      else
                         New_Group.Add_Twin (New_Twin,
                                             Mode => Value (Maint_Attr),
-                                            Bug  => Bug_ID);
+                                            Bug  => Bug_ID,
+                                            Sequence => Seq_No);
                      end if;
                   elsif Name (Group_Node) = "#text" or else
                     Name (Group_Node) = "#comment" then
