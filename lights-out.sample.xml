@@ -1,0 +1,24 @@
+<config> <!-- Global config object -->
+  <bugzilla>http://landfill.bugzilla.org/bugzilla-4.4-branch/</bugzilla>
+  <nodegroup name="group:1">
+   <nodename>node001</nodename>
+   <nodename>node002</nodename>
+   <nodename>node003</nodename>
+   <nodename maint="off" bug="123" seq_no="0">node004</nodename>
+   <!-- possible values for maint:
+   none - node will be treated as usual 
+   ignore - node will be treated as if not present
+   disable - node will be disabled
+   off - node will be disabled; as soon as all jobs have finished, it
+   will be powered off.
+   If a bug number is given, lightsout will make a comment to this bug
+   upon disabling and powering off the node.
+   -->
+   <twin seq_no="1" pdu="pdu12-3:11" name="twin01">
+     <nodename>node101</nodename>
+     <nodename maint="off" bug="456">node102</nodename></twin>
+   <minimum>2</minimum>
+   <target>3</target>
+   <maximum>4</maximum>
+  </nodegroup>
+</config>
