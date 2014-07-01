@@ -81,6 +81,7 @@ package Nodes is
    procedure Clear (What : in out List);
    function Length (From : List) return natural;
    procedure Sort (What : in out List);
+   procedure Reverse_Sort (What : in out List);
 
 private
    type Node is abstract tagged record
@@ -95,6 +96,7 @@ private
    end record;
 
    function Precedes_By_Sequence (Left, Right : Node_Safe_Pointer) return Boolean;
+   function Succedes_By_Sequence (Left, Right : Node_Safe_Pointer) return Boolean;
 
    package Node_Lists is new Ada.Containers.Doubly_Linked_Lists
      (Element_Type => Node_Safe_Pointer);
@@ -105,5 +107,8 @@ private
 
    package Sorting is new Node_Lists.Generic_Sorting
      ("<" => Precedes_By_Sequence);
+
+   package Reverse_Sorting is new Node_Lists.Generic_Sorting
+     ("<" => Succedes_By_Sequence);
 
 end Nodes;

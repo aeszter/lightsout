@@ -60,6 +60,7 @@ package body Node_Groups is
    is
       Nodes_To_Switch_On : Natural := How_Many;
    begin
+      Hosts.Reverse_Sort;
       Hosts.Rewind;
       while not At_End (Hosts) loop
          declare
@@ -106,6 +107,7 @@ package body Node_Groups is
       Nodes_To_Switch_Off : Natural := How_Many;
       Success             : Boolean;
    begin
+      Hosts.Sort;
       Hosts.Rewind;
       while not At_End (Hosts) loop
          declare

@@ -18,7 +18,6 @@ begin
    Debug ("Debugging enabled");
    All_Nodes := Config.Read;
    if not Utils.Terminate_After_Config then
-      Node_Groups.Sort (All_Nodes);
       All_Nodes.Iterate (Node_Groups.Manage'Access);
       if Utils.Stats_Enabled then
          Statistics.Print;
