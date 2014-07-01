@@ -168,7 +168,7 @@ package body Node_Groups is
                             Hosts    => The_Group.Hosts);
       else
          Debug (The_Group.Get_Name & ":" & Idle_Counter'Img
-                & " Nodes idle.");
+                & " Nodes idle, limits: " & The_Group.Min_Online'Img & The_Group.Max_Online'Img);
       end if;
    exception
       when E : Actions.Subcommand_Error =>
