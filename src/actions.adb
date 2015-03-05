@@ -6,12 +6,10 @@ with Utils; use Utils;
 with Nodes; use Nodes;
 with Statistics;
 with Ada.Exceptions; use Ada.Exceptions;
+with CM;
 
 package body Actions is
 
-   procedure Activate_Power_Switch (The_Node : String;
-                                    Command  : String;
-                                    Param    : String := "-n");
    procedure Disable_Or_Enable (The_Node : Nodes.Node; Enable : Boolean);
 
 
@@ -82,70 +80,6 @@ package body Actions is
       Disable_Or_Enable (The_Node => What, Enable => False);
    end Disable;
 
-   ---------------------------
-   -- Activate_Power_Switch --
-   ---------------------------
-
-   procedure Activate_Power_Switch (The_Node : String;
-                                    Command  : String;
-                                    Param    : String := "-n") is
-      Args         : POSIX.POSIX_String_List;
-      cmsh_Command : constant String := "device power " & Param & " "
-                               & The_Node & " " & Command;
-      Template     : Process_Template;
-      PID          : Process_ID;
-      Return_Value : Termination_Status;
-
-   begin
-      begin
-         Debug (cmsh_Command);
-         Append (Args, "cmsh");
-         Append (Args, "-c");
-         Append (Args, To_POSIX_String (cmsh_Command));
-         Open_Template (Template);
-         Set_File_Action_To_Close (Template => Template,
-                                   File     => POSIX.IO.Standard_Output);
-         exception
-         when others =>
-            Verbose_Message ("in cmsh setup:");
-            raise;
-      end;
-      begin
-         Start_Process_Search (Child    => PID,
-                               Template => Template,
-                               Filename => "cmsh",
-                               Arg_List => Args);
-      exception
-         when others =>
-            Verbose_Message ("in cmsh start:");
-            raise;
-      end;
-      begin
-         Wait_For_Child_Process (Status => Return_Value, Child => PID);
-      exception
-         when others =>
-            Verbose_Message ("in cmsh wait:");
-            raise;
-      end;
-      case Termination_Cause_Of (Return_Value) is
-         when Exited =>
-            case Exit_Status_Of (Return_Value) is
-               when Normal_Exit => return;
-               when Failed_Creation_Exit => raise Subcommand_Error with "Failed to create cmsh process";
-               when Unhandled_Exception_Exit => raise Subcommand_Error with "Unhandled exception in cmsh";
-               when others => raise Subcommand_Error with "cmsh exited with status" & Exit_Status_Of (Return_Value)'Img;
-            end case;
-         when Terminated_By_Signal =>
-            Verbose_Message ("cmsh terminated by signal " & Termination_Signal_Of (Return_Value)'Img);
-         when Stopped_By_Signal =>
-            Verbose_Message ("cmsh stopped");
-      end case;
-   exception
-      when E : POSIX_Error =>
-         raise Subcommand_Error with "cmsh raised error when called with """
-           & cmsh_Command & """:" & Exception_Information (E);
-   end Activate_Power_Switch;
-
    procedure Poweron (What : Nodes.Node) is
       The_Node     : constant String := Get_Name (What);
    begin
@@ -153,7 +87,16 @@ package body Actions is
       if Utils.Dry_Run ("switching on " & The_Node) then
          return;
       end if;
-      Activate_Power_Switch (The_Node, "on");
+      CM.Poweron (The_Node);
+   end Poweron;
+
+   procedure Poweron (PDU : Twins.PDU_String) is
+      use type Twins.PDU_String;
+   begin
+      if Utils.Dry_Run ("switching on PDU " & Twins.PDU_Strings.To_String (PDU)) then
+         return;
+      end if;
+      CM.Poweron (Twins.PDU_Strings.To_String (PDU), PDU => True);
    end Poweron;
 
    procedure Poweroff (What : Nodes.Node) is
@@ -163,17 +106,9 @@ package body Actions is
       if Utils.Dry_Run ("switching off " & The_Node) then
          return;
       end if;
-      Activate_Power_Switch (The_Node, "off");
+      CM.Poweroff (What => The_Node,
+                   PDU  => False);
    end Poweroff;
-
-   procedure Poweron (PDU : Twins.PDU_String) is
-      use type Twins.PDU_String;
-   begin
-      if Utils.Dry_Run ("switching on PDU " & Twins.PDU_Strings.To_String (PDU)) then
-         return;
-      end if;
-      Activate_Power_Switch (Twins.PDU_Strings.To_String (PDU), "on", "-p");
-   end Poweron;
 
    procedure Poweroff (PDU : Twins.PDU_String) is
       use type Twins.PDU_String;
@@ -181,16 +116,17 @@ package body Actions is
       if Utils.Dry_Run ("switching off PDU " & Twins.PDU_Strings.To_String (PDU)) then
          return;
       end if;
-      Activate_Power_Switch (Twins.PDU_Strings.To_String (PDU), "off", "-p");
+      CM.Poweroff (Twins.PDU_Strings.To_String (PDU), PDU => True);
    end Poweroff;
 
+
    procedure Powercycle (What : Nodes.Node) is
-      The_Node     : constant String := Get_Name (What);
+      The_Node : constant String := Get_Name (What);
    begin
       if Utils.Dry_Run ("powercycling " & The_Node) then
          return;
       end if;
-      Activate_Power_Switch (The_Node, "reset");
+      CM.Powercycle (The_Node);
    end Powercycle;
 
 end Actions;
