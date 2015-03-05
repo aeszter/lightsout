@@ -79,7 +79,7 @@ package Nodes is
                       Process : not null access procedure (Element : Node_Safe_Pointer'Class));
    procedure Query_Nodes (From : List; Disabled, Online, Idle : out Natural);
    procedure Clear (What : in out List);
-   function Length (From : List) return natural;
+   function Length (From : List) return Natural;
    procedure Sort (What : in out List);
    procedure Reverse_Sort (What : in out List);
 

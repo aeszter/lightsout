@@ -68,7 +68,8 @@ package body Node_Groups is
          begin
             if not In_Maintenance (-The_Node) then
                if Nodes_To_Switch_On > 0 and then
-                 not Is_Online (What => -The_Node) then
+                 not Is_Online (What => -The_Node)
+               then
                   Poweron (What => -The_Node);
                   Enable (What => -The_Node);
                   Nodes_To_Switch_On := Nodes_To_Switch_On - 1;
@@ -114,9 +115,11 @@ package body Node_Groups is
             The_Node : constant Node_Safe_Pointer'Class := Current (Hosts);
          begin
             if not In_Maintenance (-The_Node)
-               and then Has_Active_Sequence (-The_Node) then
+              and then Has_Active_Sequence (-The_Node)
+            then
                if Nodes_To_Switch_Off > 0 and then
-                 Is_Online_And_Idle (What => -The_Node) then
+                 Is_Online_And_Idle (What => -The_Node)
+               then
                   Try_To_Poweroff (The_Node => -The_Node, Succeeded => Success);
                   if Success then
                      Nodes_To_Switch_Off := Nodes_To_Switch_Off - 1;
