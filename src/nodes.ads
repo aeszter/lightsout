@@ -79,8 +79,9 @@ package Nodes is
                       Process : not null access procedure (Element : Node_Safe_Pointer'Class));
    procedure Query_Nodes (From : List; Disabled, Online, Idle : out Natural);
    procedure Clear (What : in out List);
-   function Length (From : List) return natural;
+   function Length (From : List) return Natural;
    procedure Sort (What : in out List);
+   procedure Reverse_Sort (What : in out List);
 
 private
    type Node is abstract tagged record
@@ -95,6 +96,7 @@ private
    end record;
 
    function Precedes_By_Sequence (Left, Right : Node_Safe_Pointer) return Boolean;
+   function Succedes_By_Sequence (Left, Right : Node_Safe_Pointer) return Boolean;
 
    package Node_Lists is new Ada.Containers.Doubly_Linked_Lists
      (Element_Type => Node_Safe_Pointer);
@@ -103,7 +105,12 @@ private
       Current : Node_Lists.Cursor := Node_Lists.No_Element;
    end record;
 
+   overriding function Copy (Source : List) return List;
+
    package Sorting is new Node_Lists.Generic_Sorting
      ("<" => Precedes_By_Sequence);
+
+   package Reverse_Sorting is new Node_Lists.Generic_Sorting
+     ("<" => Succedes_By_Sequence);
 
 end Nodes;

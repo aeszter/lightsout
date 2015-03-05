@@ -132,7 +132,8 @@ package body Config is
                                             Sequence => Seq_No);
                      end if;
                   elsif Name (Group_Node) = "#text" or else
-                    Name (Group_Node) = "#comment" then
+                    Name (Group_Node) = "#comment"
+                  then
                      null; -- ignore
                   else
                      raise Config_Error with "Found unexpected """
@@ -156,7 +157,8 @@ package body Config is
          elsif Node_Name (One_Node) = "bugzilla" then
             Bugzilla_Address := To_Unbounded_String (Value (First_Child (One_Node)));
          elsif Node_Name (One_Node) = "#text" or else
-           Node_Name (One_Node) = "#comment" then
+           Node_Name (One_Node) = "#comment"
+         then
             null; -- ignore
          else
             raise Config_Error with "Found unexpected """

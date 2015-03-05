@@ -1,0 +1,65 @@
+lightsout
+=========
+
+Switch HPC cluster nodes on and off as needed
+
+By Ansgar Esztermann <aeszter@mpibpc.mpg.de>
+
+1. Goal
+When an HPC cluster is faced with a widely varying number of jobs, the energy
+consumed by idle nodes may be more of a concern than the additional
+stress imposed by shutting down and restarting the nodes. Ideally,
+nodes should be switched on and off by the batch system: the scheduler
+is the only instance that really can tell which nodes are needed
+according to the current job load.
+However, our version of Grid Engine does not provide this possibility,
+so we have rolled our own.
+
+2. Design
+There is one basic assumption: there will never be any job that uses
+the complete cluster (or if there is, an admin will be at hand to
+switch on all nodes. Once this is established, one can choose three
+numbers of idle nodes: minimum, optimum, and maximum. Whenever the
+number of idle nodes falls below the minimum, additional nodes are
+brought online until the optimum number is reached. Conversely, if
+there are more free nodes than the configred maximum, nodes are shut
+down to reach the optimum.
+This buffer of idle nodes is then used by the scheduler to start
+additional jobs (if any).
+For heterogeneous clusters, these values can be set per partition
+(i.e. a group of nodes with the same hardware characteristics). 
+Partitions are not detected, but configured by the site admin (see
+sample config file).
+
+In order to make the program more robust, lightsout does not work as a
+daemon. Instead, it is intended to be run from cron once or twice per
+hour. It does not save any state across runs, so things like idle time
+are not taken into account.
+
+Lightsout will enable and disable nodes as necessary, so admins can no
+longer reliably disable nodes for maintenance. Instead, nodes needing 
+maintenance may be marked in the config file. This is also read and
+displayed by qview.
+
+3. Requirements
+Lightsout needs the following libraries:
+ * Florist (POSIX API)
+ * XmlAda
+ * AWS (Ada Web Server)
+ * Xmlrpc-Ada 
+
+Moreover, working installations of Grid Engine and Bright
+Clustermanager are needed.
+
+4. Invocation
+The following commandline options are available:
+Options may be given in full or with a single hyphen and the first
+letter only
+--debug gives debugging output
+--verbose states which nodes are switched on/off
+--no-action only goes through the motions without actually calling
+   qmod or cmsh;  implies --verbose
+--check-config only checks the config file, then terminates the program
+--statistics shows a summary of what has been done
+--help shows this message, then terminates
+

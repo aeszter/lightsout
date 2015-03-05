@@ -62,11 +62,13 @@ package body Hosts is
       for I in 0 .. DOM.Core.Nodes.Length (Nodes) - 1 loop
          State_Node := DOM.Core.Nodes.Item (Nodes, I);
          if Ada.Strings.Fixed.Count (Source => DOM.Core.Attrs.Value (DOM.Core.Nodes.First_Child (State_Node)),
-           Pattern => "d") > 0 then
+                                     Pattern => "d") > 0
+         then
             Disabled := True;
          end if;
          if Ada.Strings.Fixed.Count (Source => DOM.Core.Attrs.Value (DOM.Core.Nodes.First_Child (State_Node)),
-           Pattern => "u") > 0 then
+                                     Pattern => "u") > 0
+         then
             Online := False;
          end if;
       end loop;

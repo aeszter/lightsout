@@ -58,7 +58,8 @@ package body Statistics is
          Ada.Text_IO.Put_Line (Global_Stats.Switched_Off'Img & " Nodes switched off");
       end if;
       if Global_Stats.Switched_On > 0 or else
-         Global_Stats.Too_Few > 0 then
+        Global_Stats.Too_Few > 0
+      then
          Ada.Text_IO.Put_Line (Global_Stats.Switched_On'Img & " Nodes switched on");
          Ada.Text_IO.Put_Line (Global_Stats.Too_Few'Img
                                & " Nodes not switched on because there were none");

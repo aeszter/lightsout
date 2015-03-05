@@ -9,6 +9,12 @@ package body Nodes is
    use Ada;
    use Node_Lists;
 
+   overriding function Copy (Source : List) return List is
+   begin
+      return (Node_Lists.Copy (Source => Node_Lists.List (Source))
+         with Current => Node_Lists.No_Element);
+   end Copy;
+
    procedure Enable (What : Node_Safe_Pointer'Class) is
    begin
       Enable (-What);
@@ -237,6 +243,11 @@ package body Nodes is
       Sorting.Sort (Node_Lists.List (What));
    end Sort;
 
+   procedure Reverse_Sort (What : in out List) is
+   begin
+      Reverse_Sorting.Sort (Node_Lists.List (What));
+   end Reverse_Sort;
+
    ---------------------
    -- Try_To_Poweroff --
    ---------------------
@@ -315,5 +326,10 @@ package body Nodes is
    begin
       return Get_Sequence (-Left) < Get_Sequence (-Right);
    end Precedes_By_Sequence;
+
+   function Succedes_By_Sequence (Left, Right : Node_Safe_Pointer) return Boolean is
+   begin
+      return Get_Sequence (-Left) > Get_Sequence (-Right);
+   end Succedes_By_Sequence;
 
 end Nodes;
