@@ -1,5 +1,4 @@
-with "../florist/lib/gnat/florist";
-with "../lib/gnat/aws";
+with "florist";
 with "../xml-rpc/xmlrpc";
 
 project Lights is
