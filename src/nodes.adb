@@ -9,6 +9,12 @@ package body Nodes is
    use Ada;
    use Node_Lists;
 
+   overriding function Copy (Source : List) return List is
+   begin
+      return (Node_Lists.Copy (Source => Node_Lists.List (Source))
+         with Current => Node_Lists.No_Element);
+   end Copy;
+
    procedure Enable (What : Node_Safe_Pointer'Class) is
    begin
       Enable (-What);

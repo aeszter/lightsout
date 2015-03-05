@@ -105,6 +105,8 @@ private
       Current : Node_Lists.Cursor := Node_Lists.No_Element;
    end record;
 
+   overriding function Copy (Source : List) return List;
+
    package Sorting is new Node_Lists.Generic_Sorting
      ("<" => Precedes_By_Sequence);
 
