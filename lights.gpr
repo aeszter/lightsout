@@ -1,37 +1,33 @@
-with "florist";
+with "/sw/cluster/florist17/share/gpr/florist.gpr";
 with "../xml-rpc/xmlrpc";
+with "../cmlib/cmlib.gpr";
 
 project Lights is
 
-   type Library_Kind is
-      ("relocatable", "static");
-   type Target_Type is
-      ("native", "vxworks");
-   type Ssl_Library_Kind is
-      ("relocatable", "static");
+   type Build_Kind is
+      ("default", "relocatable");
    for Object_Dir use "obj";
    for Main use ("lightsout.adb");
-   SSL_LIBRARY_TYPE : Ssl_Library_Kind := external ("SSL_LIBRARY_TYPE");
-   PLATFORM : Target_Type := external ("PLATFORM");
-   LIBRARY_TYPE : Library_Kind := external ("LIBRARY_TYPE");
+   type Ssl_Library_Kind is
+      ("relocatable", "static");
+   Ssl_Library_Type : Ssl_Library_Kind := external ("SSL_LIBRARY_TYPE");
+   type Target_Type is
+      ("native", "vxworks");
+   Platform : Target_Type := external ("PLATFORM");
+   type Library_Kind is
+      ("relocatable", "static");
+   Library_Type : Library_Kind := external ("LIBRARY_TYPE");
+   AWS_BUILD : Build_Kind := external ("AWS_BUILD");
 
-   package Builder is
-      for Default_Switches ("ada") use ("-j4");
-   end Builder;
-
-   package Compiler is
-      for Default_Switches ("ada") use ("-gnaty3aBcCehiklnOrsStx", "-gnatwa", "-O", "-gnato", "-g");
-   end Compiler;
-
-   case SSL_LIBRARY_TYPE is
+   case Ssl_Library_Type is
 
       when "relocatable" =>
 
-         case PLATFORM is
+         case Platform is
 
             when "native" =>
 
-               case LIBRARY_TYPE is
+               case Library_Type is
 
                   when "relocatable" =>
                      for Source_Dirs use ("src", "../../../lib/sl5/xmlada/include/xmlada", "../tools/pipes");
@@ -47,6 +43,46 @@ project Lights is
       when "static" =>
          for Source_Dirs use ("src", "../../../lib/sl5/xmlada/include/xmlada", "../tools/pipes");
    end case;
+
+   package Builder is
+      for Default_Switches ("ada") use ("-j4");
+   end Builder;
+
+   package Compiler is
+
+      case Library_Type is
+
+         when "static" =>
+
+            case AWS_BUILD is
+
+               when "default" =>
+
+                  case Platform is
+
+                     when "native" =>
+
+                        case Ssl_Library_Type is
+
+                           when "relocatable" =>
+                              for Default_Switches ("ada") use ("-gnaty3aBcCehiklnOrsStx", "-gnatwa", "-O", "-gnato", "-g", "-gnata");
+
+                           when "static" =>
+                              for Default_Switches ("ada") use ("-gnaty3aBcCehiklnOrsStx", "-gnatwa", "-O", "-gnato", "-g");
+                        end case;
+
+                     when "vxworks" =>
+                        for Default_Switches ("ada") use ("-gnaty3aBcCehiklnOrsStx", "-gnatwa", "-O", "-gnato", "-g");
+                  end case;
+
+               when "relocatable" =>
+                  for Default_Switches ("ada") use ("-gnaty3aBcCehiklnOrsStx", "-gnatwa", "-O", "-gnato", "-g");
+            end case;
+
+         when "relocatable" =>
+            for Default_Switches ("ada") use ("-gnaty3aBcCehiklnOrsStx", "-gnatwa", "-O", "-gnato", "-g");
+      end case;
+   end Compiler;
 
 end Lights;
 

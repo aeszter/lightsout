@@ -82,6 +82,7 @@ package Nodes is
    function Length (From : List) return Natural;
    procedure Sort (What : in out List);
    procedure Reverse_Sort (What : in out List);
+   function Copy (Source : List) return List;
 
 private
    type Node is abstract tagged record
@@ -105,7 +106,6 @@ private
       Current : Node_Lists.Cursor := Node_Lists.No_Element;
    end record;
 
-   overriding function Copy (Source : List) return List;
 
    package Sorting is new Node_Lists.Generic_Sorting
      ("<" => Precedes_By_Sequence);
