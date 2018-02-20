@@ -6,7 +6,8 @@ with Utils; use Utils;
 with Nodes; use Nodes;
 with Statistics;
 with Ada.Exceptions; use Ada.Exceptions;
-with CM;
+with CM.Power;
+with CM.Taint; use CM.Taint;
 
 package body Actions is
 
@@ -81,13 +82,13 @@ package body Actions is
    end Disable;
 
    procedure Poweron (What : Nodes.Node) is
-      The_Node     : constant String := Get_Name (What);
+      The_Node     : constant Trusted_String := Sanitise (Get_Name (What));
    begin
       Statistics.Node_Switched_On;
-      if Utils.Dry_Run ("switching on " & The_Node) then
+      if Utils.Dry_Run ("switching on " & Value (The_Node)) then
          return;
       end if;
-      CM.Poweron (The_Node);
+      CM.Power.Poweron (The_Node);
    end Poweron;
 
    procedure Poweron (PDU : Twins.PDU_String) is
@@ -96,17 +97,17 @@ package body Actions is
       if Utils.Dry_Run ("switching on PDU " & Twins.PDU_Strings.To_String (PDU)) then
          return;
       end if;
-      CM.Poweron (Twins.PDU_Strings.To_String (PDU), PDU => True);
+      CM.Power.Poweron (Sanitise (Twins.PDU_Strings.To_String (PDU)), PDU => True);
    end Poweron;
 
    procedure Poweroff (What : Nodes.Node) is
-      The_Node     : constant String := Get_Name (What);
+      The_Node : constant Trusted_String := Sanitise (Get_Name (What));
    begin
       Statistics.Node_Switched_Off;
-      if Utils.Dry_Run ("switching off " & The_Node) then
+      if Utils.Dry_Run ("switching off " & Value (The_Node)) then
          return;
       end if;
-      CM.Poweroff (What => The_Node,
+      CM.Power.Poweroff (What => The_Node,
                    PDU  => False);
    end Poweroff;
 
@@ -116,17 +117,17 @@ package body Actions is
       if Utils.Dry_Run ("switching off PDU " & Twins.PDU_Strings.To_String (PDU)) then
          return;
       end if;
-      CM.Poweroff (Twins.PDU_Strings.To_String (PDU), PDU => True);
+      CM.Power.Poweroff (Sanitise (Twins.PDU_Strings.To_String (PDU)), PDU => True);
    end Poweroff;
 
 
    procedure Powercycle (What : Nodes.Node) is
-      The_Node : constant String := Get_Name (What);
+      The_Node : constant Trusted_String := Sanitise (Get_Name (What));
    begin
-      if Utils.Dry_Run ("powercycling " & The_Node) then
+      if Utils.Dry_Run ("powercycling " & Value (The_Node)) then
          return;
       end if;
-      CM.Powercycle (The_Node);
+      CM.Power.Powercycle (The_Node);
    end Powercycle;
 
 end Actions;
