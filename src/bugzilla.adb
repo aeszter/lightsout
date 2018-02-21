@@ -28,6 +28,9 @@ package body Bugzilla is
       Payload : constant XMLrpc.Message.Payload.Object
         := XMLrpc.Message.Payload.Build ("Bug.add_comment", Params);
    begin
+      if not Config.Bugzilla_Writable then
+         return;
+      end if;
       if Utils.Dry_Run ("Talking to Bugzilla") then
          return;
       end if;

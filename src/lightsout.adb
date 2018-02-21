@@ -5,6 +5,7 @@ with Ada.Exceptions; use Ada.Exceptions;
 with Ada.Command_Line; use Ada.Command_Line;
 with Utils; use Utils;
 with Statistics;
+with CM.Debug;
 
 
 procedure Lightsout is
@@ -16,6 +17,7 @@ begin
    Utils.Check_Options;
    Utils.Verbose_Message ("Lightsout " & Utils.Version & " by aeszter@mpibpc.mpg.de");
    Debug ("Debugging enabled");
+   CM.Debug.Initialize (Debug'Access);
    All_Nodes := Config.Read;
    if not Utils.Terminate_After_Config then
       All_Nodes.Iterate (Node_Groups.Manage'Access);
