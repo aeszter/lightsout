@@ -2,7 +2,9 @@ with Ada.Text_IO;
 with Utils; use Utils;
 with Nodes;
 with Bugzilla;
+with Mailer;
 with Statistics;
+with CM.Taint; use CM.Taint;
 
 package body Nodes is
 
@@ -93,8 +95,11 @@ package body Nodes is
                   if The_Node.Bug > 0  then
                      Bugzilla.Add_Comment (Bug_ID  => The_Node.Bug,
                                         Comment => "Powered off " & Get_Name (The_Node)
-                                        & " for maintenance");
-                     Ada.Text_IO.Put_Line ("Added bugzilla comment");
+                                           & " for maintenance");
+                     Mailer.Send (Sanitise (Get_Name (The_Node)),
+                                  "Powered off " & Get_Name (The_Node)
+                                  & " for maintenance");
+                     Ada.Text_IO.Put_Line ("Notified admin");
                   end if;
                else
                   Disable (The_Node);
@@ -109,7 +114,6 @@ package body Nodes is
                   Bugzilla.Add_Comment (Bug_ID  => The_Node.Bug,
                                         Comment => "Disabling " & Get_Name (The_Node)
                                & " (poweroff pending)");
-                  Verbose_Message ("Added bugzilla comment");
                end if;
             elsif Online and Disabled then
                Debug ("Waiting for disabled " & Get_Name (The_Node)

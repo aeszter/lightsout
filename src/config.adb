@@ -156,6 +156,10 @@ package body Config is
             end;
          elsif Node_Name (One_Node) = "bugzilla" then
             Bugzilla_Address := To_Unbounded_String (Value (First_Child (One_Node)));
+         elsif Node_Name (One_Node) = "mailto" then
+            Mailto_Address := To_Unbounded_String (Value (First_Child (One_Node)));
+         elsif Node_Name (One_Node) = "bugzilla_readonly" then
+            Bugzilla_Is_Writable := False;
          elsif Node_Name (One_Node) = "#text" or else
            Node_Name (One_Node) = "#comment"
          then
@@ -178,5 +182,21 @@ package body Config is
       return To_String (Bugzilla_Address);
    end Get_Bugzilla;
 
+   function Get_Mailto return String is
+      At_Sign : constant Natural := Index (Source  => Mailto_Address,
+                                           Pattern => "@");
+   begin
+      if Length (Mailto_Address) = 0 then
+         raise Config_Error with "No Mailto address";
+      elsif At_Sign <= 1 then
+         raise Config_Error with "Invalid Mailto addrss";
+      end if;
+      return To_String (Mailto_Address);
+   end Get_Mailto;
+
+   function Bugzilla_Writable return Boolean is
+   begin
+      return Bugzilla_Is_Writable;
+   end Bugzilla_Writable;
 
 end Config;
