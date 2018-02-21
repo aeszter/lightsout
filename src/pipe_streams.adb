@@ -34,6 +34,12 @@ package body Pipe_Streams is
       end if;
    end Next_Char;
 
+   overriding procedure Close (P : in out Pipe_Stream) is
+   begin
+      Pipe_Commands.close (P.file_stream);
+      Close (Input_Source (P));
+   end Close;
+
    ---------
    -- Eof --
    ---------
